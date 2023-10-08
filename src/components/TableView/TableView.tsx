@@ -2,13 +2,14 @@ import { SearchOutlined } from "@ant-design/icons";
 import React, { useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
 import type { InputRef } from "antd";
-import { Button, Input, Space, Table } from "antd";
+import { Button, FloatButton, Input, Space, Table } from "antd";
 import type { ColumnType, ColumnsType } from "antd/es/table";
 import type { FilterConfirmProps } from "antd/es/table/interface";
 import StatusFilter from "../StatusFilter/StatusFilter";
 import FilterTable from "../FilterTable/FilterTable";
 import MainContainer from "../../Containers/MainContainer/MainContainer";
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 interface DataType {
   key: string;
   name: string;
@@ -77,7 +78,25 @@ const TableView: React.FC = () => {
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
 
+  const exportToExcel = () => {
+    // Get the table data
+    const table = document.getElementById("my-table");
+    const tableData = XLSX.utils.table_to_sheet(table);
 
+    // Create a new workbook and add the table data
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, tableData, "Sheet1");
+
+    // Generate the Excel file and download it
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const excelBlob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(excelBlob, "table-data.xlsx");
+  };
 
 
   const handleSearch = (
@@ -246,8 +265,11 @@ const TableView: React.FC = () => {
   return (
     <MainContainer title="الطلبات" >
       {/* <TableTabs /> */}
+      <FloatButton type='primary' onClick={exportToExcel} style={{boxShadow : 'none' , position : 'absolute' , left : '5px' , top : '5px' , alignSelf : 'center'}}
+         tooltip={<div>تنزيل ملف الاكسيل</div>}
+         />
         <FilterTable />
-        <Table columns={columns} dataSource={data} style={{direction : 'rtl'}}/>
+        <Table columns={columns} dataSource={data} style={{direction : 'rtl'}} id="my-table"/>
         </MainContainer>
   );
 };

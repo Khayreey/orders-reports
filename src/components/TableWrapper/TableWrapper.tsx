@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import MainContainer from '../../Containers/MainContainer/MainContainer'
 import {  FloatButton, Table } from 'antd'
-import { AiFillFileExcel } from "react-icons/ai";
-import { Excel } from "antd-table-saveas-excel";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 interface TableWrapperInterface {
     data : any , 
@@ -11,20 +11,30 @@ interface TableWrapperInterface {
 }
 const TableWrapper = ({data , columns , title} : TableWrapperInterface) => {
 
-  const handlePrint = () => {
-    const excel = new Excel();
-    excel
-      .addSheet("sheet 1")
-      .addColumns(columns)
-      .addDataSource(data, {
-        str2Percent: true
-      })
-      .saveAs("Excel.xlsx");
-    };
+ 
+  const exportToExcel = () => {
+    // Get the table data
+    const table = document.getElementById("my-table");
+    const tableData = XLSX.utils.table_to_sheet(table);
+
+    // Create a new workbook and add the table data
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, tableData, "Sheet1");
+
+    // Generate the Excel file and download it
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const excelBlob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(excelBlob, "table-data.xlsx");
+  };
+
   return (
     <MainContainer title={title}>
-        
-         <FloatButton type='primary' onClick={handlePrint} style={{boxShadow : 'none' , position : 'absolute' , left : '5px' , top : '5px' , alignSelf : 'center'}}
+         <FloatButton type='primary' onClick={exportToExcel} style={{boxShadow : 'none' , position : 'absolute' , left : '5px' , top : '5px' , alignSelf : 'center'}}
          tooltip={<div>تنزيل ملف الاكسيل</div>}
          />
         
