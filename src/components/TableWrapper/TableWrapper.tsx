@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import MainContainer from '../../Containers/MainContainer/MainContainer'
-import { Col, FloatButton, Table } from 'antd'
+import {  FloatButton, Table } from 'antd'
 import { AiFillFileExcel } from "react-icons/ai";
 import { Excel } from "antd-table-saveas-excel";
 
