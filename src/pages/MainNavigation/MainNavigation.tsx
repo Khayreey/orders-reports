@@ -66,6 +66,11 @@ const MainNavigation: React.FC = () => {
               label: <Link to="/orders">الطلبات</Link>,
             },
             {
+              key: "/bills",
+              icon: <TfiShoppingCartFull />,
+              label: <Link to="/bills">البوالص</Link>,
+            },
+            {
               key: "/products",
               icon: <TbTruckDelivery />,
               label: <Link to="/products">المنتجات</Link>,
@@ -100,10 +105,10 @@ const MainNavigation: React.FC = () => {
               height: 64,
             }}
           />
-          <img
+          {/* <img
             style={{ alignSelf: "end", marginInlineEnd: "20px", width: "15%" }}
             src="/logo.png"
-          />
+          /> */}
         </Header>
         <Content
           style={{

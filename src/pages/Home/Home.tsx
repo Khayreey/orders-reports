@@ -1,7 +1,6 @@
-import Statistics from '../../components/Statistics/Statistics'
-import Charts from '../../components/Charts/Charts'
-import DatePickerComponent from '../../components/DatePicker/DatePicker'
-
+import Charts from "../../components/Charts/Charts"
+import DatePickerComponent from "../../components/DatePicker/DatePicker"
+import Statistics from "../../components/Statistics/Statistics"
 const Home = () => {
   return (
     <>

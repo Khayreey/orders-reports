@@ -5,8 +5,8 @@ import MainNavigation from './pages/MainNavigation/MainNavigation'
 import {  RouterProvider, createBrowserRouter } from "react-router-dom";
 import Orders from './pages/Orders/Orders';
 import Products from './pages/Products/Products';
-import WareHouse from './pages/WareHouse/WareHouse';
 import Ship from './pages/Ship/Ship';
+import BillsPage from './pages/BillsPage/BillsPage';
 
 function App() {
  
@@ -18,8 +18,9 @@ function App() {
         { path: "/", element: <Home /> },
         {path: "/orders", element: <Orders /> },
         {path: "/products", element: <Products /> },
-        {path: "/warehouse", element: <WareHouse /> },
+        
         {path: "/ship", element: <Ship /> },
+        {path: "/bills", element: <BillsPage /> },
         {path: "/setting", element: <Ship /> },
       ],
     },
@@ -32,7 +33,9 @@ function App() {
   ]);
 
   return (
+    
     <RouterProvider router={routers} />
+    
   )
 }
 

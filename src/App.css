@@ -2,3 +2,27 @@
 *{
     font-family: 'cairo';
 }
+
+@media print {
+    html, body {
+      height: 100vh;
+      margin: 0 !important;
+      padding: 0 !important
+    }
+    .page-break {
+      margin-top: 2rem;
+      display: block;
+      page-break-after: always;
+    }
+}
+.ant-form-item-explain-error {
+  position : absolute!important ; 
+  margin-bottom : 20px !important ; 
+  right : 2px !important ;
+  width : max-content !important
+}
+
+
+
+  
+  

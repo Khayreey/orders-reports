@@ -22,7 +22,8 @@ const CustomVarSelect = ({
   options , 
   setProducts , 
   id , 
-  products
+  products , 
+  
   
 }: InputInterface) => {
  

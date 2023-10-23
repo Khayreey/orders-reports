@@ -12,19 +12,7 @@ const DountChart = () => {
       type: "donut",
     },
     legend: { floating: true },
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 200,
-          },
-          legend: {
-            position: "bottom",
-          },
-        },
-      },
-    ],
+   
     labels: ["A", "B"],
     plotOptions: {
       pie: {
@@ -48,8 +36,8 @@ const DountChart = () => {
       lg={{ span: 12 }}
       style={{ padding: "20px", borderRadius: "20px", position: "relative" }}
     >
-      <Card bordered={false} title="احصائية المخزن" style={{ height: "450px" }}>
-        <Chart options={options} series={series} type="donut" height={300} />
+      <Card bordered={false} title="احصائية المخزن" style={{ height: "400px" }}>
+        <Chart options={options} series={series} type="donut" height={200} />
       </Card>
     </Col>
   );

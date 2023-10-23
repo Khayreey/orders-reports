@@ -2,52 +2,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Form, InputNumber } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
 
 interface InputInterface {
   Icon: React.ReactNode;
   label: string;
   placeholder: string;
   required?: boolean;
-  id : any , 
-  products : any, 
-  setProducts :any, 
+  id: any;
+  products: any;
+  setProducts: any;
+  product: any;
 }
 const CustomInputNumber = ({
   required = true,
   placeholder,
   Icon,
   label,
-  id , 
-  products , 
-  setProducts 
+  id,
+  products,
+  setProducts,
+  product,
 }: InputInterface) => {
-
- 
-  const [quantity , setQuantity] = useState(1)
-  useEffect(()=>{
-    const newProducts = [...products] 
-    const isExist = newProducts.findIndex((e)=>e.id === id) 
-    if(isExist === -1) {
-     return 
+  const changeQuantity = (e: any) => {
+    const newProducts = [...products];
+    const isExist = newProducts.findIndex((e) => e.id === id);
+    if (isExist === -1) {
+      return;
+    } else {
+      newProducts[isExist] = { ...newProducts[isExist], quantity: e };
+      setProducts(newProducts);
     }
-    else {
-      setQuantity(newProducts[isExist].quantity)
-    }
-  } , [products])
-  const changeQuantity = (e : any)=>{
-    
-    const newProducts = [...products] 
-    const isExist = newProducts.findIndex((e)=>e.id === id) 
-    if(isExist === -1) {
-     return 
-    }
-    else {
-      newProducts[isExist] = {...newProducts[isExist] , quantity : e}
-      setProducts(newProducts)
-
-    }
-  }
+  };
   return (
     <>
       <Form.Item
@@ -55,7 +40,8 @@ const CustomInputNumber = ({
         hasFeedback
         label={label}
         validateTrigger="onBlur"
-        required={required}
+        name={`${id}quantity`}
+        rules={[{ required: true, message: "لابد من ادخال ارقام فقط" }]}
         tooltip={
           required
             ? "  مطلوب"
@@ -67,12 +53,11 @@ const CustomInputNumber = ({
           placeholder={placeholder}
           prefix={Icon}
           size="large"
-          onChange={(e)=>changeQuantity(e)}
-          value={quantity}
+          onChange={(e) => changeQuantity(e)}
+          value={product.quantity}
         />
       </Form.Item>
     </>
   );
 };
-
 export default CustomInputNumber;

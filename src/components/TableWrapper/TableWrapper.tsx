@@ -3,15 +3,14 @@ import MainContainer from '../../Containers/MainContainer/MainContainer'
 import {  FloatButton, Table } from 'antd'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import ExpandProductList from '../ExpandProductList/ExpandProductList';
 
 interface TableWrapperInterface {
     data : any , 
     columns : any , 
-    title : string
+    title : string ,
 }
 const TableWrapper = ({data , columns , title} : TableWrapperInterface) => {
-
- 
   const exportToExcel = () => {
     // Get the table data
     const table = document.getElementById("my-table");
@@ -31,14 +30,17 @@ const TableWrapper = ({data , columns , title} : TableWrapperInterface) => {
     });
     saveAs(excelBlob, "table-data.xlsx");
   };
-
   return (
     <MainContainer title={title}>
          <FloatButton type='primary' onClick={exportToExcel} style={{boxShadow : 'none' , position : 'absolute' , left : '5px' , top : '5px' , alignSelf : 'center'}}
          tooltip={<div>تنزيل ملف الاكسيل</div>}
          />
-        
-        <Table columns={columns} dataSource={data} style={{direction : 'rtl'}} id="my-table"/>
+        <Table 
+        expandable={{
+          expandedRowRender: (record , index) => <ExpandProductList key={index}/>,
+          rowExpandable: (record) => record.type   ,
+        }}
+        columns={columns} dataSource={data} style={{direction : 'rtl'}} id="my-table"/>
     </MainContainer>
   )
 }

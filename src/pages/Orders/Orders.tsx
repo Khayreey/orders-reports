@@ -1,8 +1,6 @@
+
 import AddNewOrder from "../../components/AddNewOrder/AddNewOrder"
 import TableView from "../../components/TableView/TableView"
-
-
-
 const Orders = () => {
   return (
     <>
@@ -11,5 +9,4 @@ const Orders = () => {
     </>
   )
 }
-
 export default Orders
