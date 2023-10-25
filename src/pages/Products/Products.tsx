@@ -1,7 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import MainContainer from "../../Containers/MainContainer/MainContainer"
 import AddNewProduct from "../../components/AddNewProduct/AddNewProduct"
 import { ColumnsType } from "antd/es/table";
 import TableWrapper from "../../components/TableWrapper/TableWrapper";
+import DispatchInterface from "../../types/DispatchInterface";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getAllProducts } from "../../store/productSlice/productSlice";
+import { Tag } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined, DeleteOutlined } from "@ant-design/icons";
+import DeleteModal from "../../modals/DeleteModal/DeleteModal";
 
 interface DataType {
     id : React.Key , 
@@ -11,34 +20,21 @@ interface DataType {
     type? : [{name : string , quantity : number}]
   }
 const Products = () => {
-  const data: DataType[] = [
-    {
-      id : '150' ,
-      name : 'شركة النصر' , 
-      subName : '01001606344' , 
-      stock : '50', 
-    },
-    {
-        id : '10' ,
-        name : 'شركة النصر' , 
-        subName : '01001606344' , 
-        stock : '50', 
-      },
-      {
-        id : '22' ,
-        name : 'شركة النصر' , 
-        subName : '01001606344' , 
-        stock : '50', 
-        type : [{name : 'fdfdfd' , quantity : 10}]
-      },
-      {
-        id : '180' ,
-        name : 'شركة النصر' , 
-        subName : '01001606344' , 
-        stock : '50', 
-        type : [{name : 'fdfdfd' , quantity : 10}]
-      },
-  ];
+  const dispatch : DispatchInterface = useDispatch()
+  const {isProductsRequireRender , productsDB} = useSelector((state : any)=>state.product)
+  
+  const formattedProducts = productsDB ? productsDB.map(({_id , ...state})=>{
+     return {...state , key : _id}
+  }) : []
+  
+  useEffect(()=>{
+    dispatch(getAllProducts({url : 'product'}))
+  } , [dispatch , isProductsRequireRender])
+
+const confirmDelete = ()=>{
+  console.log('fdfdfdfdfd')
+}  
+
 const columns: ColumnsType<DataType> = [
     {
       title: "اسم المنتج",
@@ -47,16 +43,56 @@ const columns: ColumnsType<DataType> = [
       
     },
     {
-      title: "الاسم الفرعي للمنتج",
-      dataIndex: "subName",
-      key: "subName",
-
-     
+      title: "عدد الانواع",
+      dataIndex: "type",
+      key: "type",
+      render: (e) => {
+        if(e.length === 0 || !e){
+          return (
+            <Tag color="volcano" icon={<CloseCircleOutlined />} >----</Tag>
+          )
+        }
+        if(e) {
+          return (
+            <Tag icon={<CheckCircleOutlined />} >{e.length}</Tag>   
+          )
+        }
+      },
     },
     {
-      title: "العدد المتاح",
-      dataIndex: "stock",
-      key: "stock",         
+      title: " الانواع",
+      dataIndex: "type",
+      key: "type",
+      render: (e) => {
+        if(e.length === 0 || !e){
+          return (
+            <Tag color="volcano">لايوجد انواع داخلية</Tag>
+          )
+        }
+        if(e) {
+          return (
+             <div style={{display : 'flex'}}>
+        {e.map((item : any , index : number)=>{
+            return (
+              <Tag color="geekblue" key={index}>{item.name}</Tag>
+            )
+          })}
+             </div>
+          )
+          
+        }
+      },
+    },
+    {
+      title: "اجمالي المخزن",
+      dataIndex: "quantity",
+      key: "quantity",         
+    },
+    {
+      title: 'الاجرائات',
+      dataIndex: '',
+      key: 'x',
+      render: () => <a><DeleteOutlined onClick={()=> DeleteModal('khomra' , confirmDelete)} style={{ cursor : 'pointer' }}/></a> ,
     },
   ];
   return (
@@ -64,7 +100,7 @@ const columns: ColumnsType<DataType> = [
     <MainContainer title="اضافة منتج جديد" isCollapse={true}>
       <AddNewProduct/>
     </MainContainer>
-        <TableWrapper title='المتجات داخل المخزن' columns={columns} data={data}/>
+        <TableWrapper title='المتجات داخل المخزن' columns={columns} data={formattedProducts}/>
         </>
      
   )

@@ -50,7 +50,7 @@ const ProductInput = ({
     const newProducts = [...products];
     const filtered = newProducts.findIndex((e) => e.id === id);
 
-    newProducts[filtered] = { ...newProducts[filtered], product: value };
+    newProducts[filtered] = { ...newProducts[filtered], name: value };
 
     setProducts(newProducts);
   };

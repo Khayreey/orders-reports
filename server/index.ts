@@ -29,7 +29,7 @@ app.use(cors(corsOptions))
 
 // our routes
 app.use('/api/user' , UserRoute)
-app.use('/api/product' , authMiddelware , ProductRoute)
+app.use('/api/product'  , ProductRoute)
 app.use('/api/ship' , authMiddelware , ShipRoute)
 app.use('/api/order' , authMiddelware , OrderRoute)
 // app.use('/api/contacts' , authMiddelware , ContactsRoute)

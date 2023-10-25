@@ -10,7 +10,7 @@ import { Toaster } from "react-hot-toast";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <ConfigProvider theme={config}>
-      <Toaster /> 
+      <Toaster containerStyle={{zIndex : '999999999999999999'}}/> 
       <App />
     </ConfigProvider>
   </Provider>

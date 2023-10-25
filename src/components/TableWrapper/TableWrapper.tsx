@@ -37,8 +37,8 @@ const TableWrapper = ({data , columns , title} : TableWrapperInterface) => {
          />
         <Table 
         expandable={{
-          expandedRowRender: (record , index) => <ExpandProductList key={index}/>,
-          rowExpandable: (record) => record.type   ,
+          expandedRowRender: (record , index) => <ExpandProductList product={record} key={index}/> ,
+          rowExpandable: (record) => record.type  ,
         }}
         columns={columns} dataSource={data} style={{direction : 'rtl'}} id="my-table"/>
     </MainContainer>

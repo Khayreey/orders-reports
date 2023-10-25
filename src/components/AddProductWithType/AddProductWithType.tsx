@@ -1,16 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Form, Button, Row, Col, FloatButton, Input } from "antd";
-import { useEffect, useState } from "react";
+import { Form, Button, Row, Col, FloatButton, Input, FormInstance } from "antd";
+import { useEffect, useRef, useState } from "react";
 import ProductInput from "../ProductInput/ProductInput";
 import { AiOutlinePhone } from "react-icons/ai";
 import { PlusOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { createNewProduct, productActions } from "../../store/productSlice/productSlice";
+import DispatchInterface from "../../types/DispatchInterface";
 
 const AddProductWithType = () => {
+  
+  const {isWaitingForAddOrder , errorMessage } = useSelector((state : any)=>state.product)
   const [products, setProducts] = useState<any[]>([
-    { product: "", quantity: 1, id: 0 },
+    { name: "", quantity: 1, id: 0 },
   ]);
   const [productName, setProductName] = useState("");
   const [isFormError, setIsFormError] = useState(false);
+
+  const dispatch : DispatchInterface = useDispatch()
   const addProductInput = () => {
     setProducts((state) => {
       const lastId = state.at(-1);
@@ -23,10 +30,16 @@ const AddProductWithType = () => {
       }
     });
   };
+ 
+  const  formRef = useRef<FormInstance<any>>(null);
 
-  useEffect(() => {
+  useEffect(()=>{
+    if(!productName || productName === '') return 
+    dispatch(productActions.resetError())
+  } ,[productName])
+ useEffect(() => {
     products.map((e) => {
-      if (e.product === "" || productName === "") return setIsFormError(true);
+      if (e.name === "" || productName === "") return setIsFormError(true);
       if (e.quantity < 0 || productName === "") return setIsFormError(true);
       else return setIsFormError(false);
     });
@@ -38,8 +51,25 @@ const AddProductWithType = () => {
 
     setProducts(filteredOne);
   };
+  const clearForm = ()=>{
+    setProductName('')
+    setProducts([{ name: "", quantity: 1, id: 0 }])
+    formRef?.current?.resetFields();
+  }
+  const  addProductHandler = (e :React.FormEvent<HTMLFormElement>)=>{
+      e.preventDefault()
+      const formattedProducts = products?.map(({name , quantity})=>{
+          return {name , quantity : Number(quantity)}
+      })    
+      dispatch(createNewProduct(
+        {url : 'product' , clearForm  ,
+         toastMessage : 'تم اضافة المنتج بنجاح' ,
+         data : {name : productName ,  type : formattedProducts }
+        }))
+  }
+ 
   return (
-    <Form layout="vertical">
+    <Form layout="vertical" onSubmitCapture={(e)=>addProductHandler(e)} ref={formRef}>
       <Form.Item
         hasFeedback
         name={"name"}
@@ -52,6 +82,7 @@ const AddProductWithType = () => {
         <Input
           size="large"
           value={productName}
+          allowClear={true}
           onChange={(e) => setProductName(e.target.value)}
           placeholder={"اسم المنتج"}
           prefix={<AiOutlinePhone />}
@@ -92,8 +123,14 @@ const AddProductWithType = () => {
           ) : null}
         </Col>
       </Row>
+      {errorMessage ? 
+      <h3 style={{textAlign : 'center' , color : 'red'}}>{errorMessage}</h3>
+      : 
+      null
+      }
       <Button
         type="primary"
+        loading={isWaitingForAddOrder}
         disabled={isFormError}
         htmlType="submit"
         style={{ width: "100%", marginTop: "1rem" }}

@@ -7,35 +7,51 @@ import throwForbiddnError from "../errors/ForbiddnError";
 import hasDuplicates from "../utils/IsArrayEqual";
 
 export const getAllProducts = async (req: Request, res: Response) => {
-  const { permissions } = req.user;
-  const isHaveAuth = permissions.view.includes("product");
-  if (!isHaveAuth || !permissions)
-    throwForbiddnError("ليس لديك الصلاحية لتصفح المنتجات");
+  // const { permissions } = req.user;
+  // if (!permissions)
+  //   throwForbiddnError("ليس لديك الصلاحية لتصفح المنتجات");
+  // const isHaveAuth = permissions.view.includes("product");
+  // if (!isHaveAuth )
+  //   throwForbiddnError("ليس لديك الصلاحية لتصفح المنتجات");
   const allProducts = await ProductModel.find({});
   res.status(200).json({ data: allProducts });
 };
 export const createNewProduct = async (req: Request, res: Response) => {
-  const { name, type } = req.body;
-  const { permissions } = req.user;
-  const isHaveAuth = permissions.create.includes("product");
-  if (!isHaveAuth || !permissions)
-    throwForbiddnError("ليس لديك الصلاحية لاضافة منتج");
+  const { name, type , quantity} = req.body;
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.create.includes("product");
+  // if (!isHaveAuth || !permissions)
+  //   throwForbiddnError("ليس لديك الصلاحية لاضافة منتج");
   if (!name && type) throwBadRequestError("لا بد من توافر اسم المنتج", "name");
-  const isExistWithType = await ProductModel.exists({ name: name });
 
-  if (hasDuplicates(type)) throwBadRequestError("يوجد عناصر مككرة");
+  if(!type && !quantity && name) throwBadRequestError('لابد من اضافة الكمية')
+  if (type && hasDuplicates(type)) throwBadRequestError("يوجد عناصر مككرة");
+  
+  const isExistWithType = await ProductModel.exists({ name: name });
   if (isExistWithType) throwBadRequestError("هذا المنتج موجود بالفعل", "name");
-  const quantity = type
-    .map((e: any) => Number(e.quantity))
-    .reduce((a: number, b: number) => {
-      return a + b;
-    }, 0);
+  
+  if(name && quantity && !type) {
+   
   const newProduct = await ProductModel.create({
     name: name,
-    type: type,
-    quantity,
+    quantity : quantity,
   });
   res.status(201).json({ data: newProduct });
+  }
+ else {
+  const allQuantity = type
+  .map((e: any) => Number(e.quantity))
+  .reduce((a: number, b: number) => {
+    return a + b;
+  }, 0);
+const newProduct = await ProductModel.create({
+  name: name,
+  type: type,
+  quantity : allQuantity,
+});
+res.status(201).json({ data: newProduct });
+ }
+ 
 };
 export const updateProduct = async (req: Request, res: Response) => {
   const {

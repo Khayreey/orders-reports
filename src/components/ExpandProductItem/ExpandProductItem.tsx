@@ -5,12 +5,11 @@ import { AiOutlineCheck } from "react-icons/ai";
 import {MdDeleteOutline} from 'react-icons/md'
 
 interface ExpandProps {
-  type : {
-    name : string , 
-    quantity : number
-  }
+  type : any
 }
 const ExpandProductItem = ({type} : ExpandProps) => {
+  
+  
   const [typeName , setTypeName] = useState(type.name)
   const [addedQuantity , setAddedQuantity] = useState('')
   
