@@ -7,7 +7,7 @@ import TableWrapper from "../../components/TableWrapper/TableWrapper";
 import DispatchInterface from "../../types/DispatchInterface";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { getAllProducts } from "../../store/productSlice/productSlice";
+import { deleteProduct, getAllProducts } from "../../store/productSlice/productSlice";
 import { Tag } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, DeleteOutlined } from "@ant-design/icons";
 import DeleteModal from "../../modals/DeleteModal/DeleteModal";
@@ -18,29 +18,29 @@ interface DataType {
     subName: string;
     stock :  string ,    
     type? : [{name : string , quantity : number}]
-  }
+}
 const Products = () => {
   const dispatch : DispatchInterface = useDispatch()
-  const {isProductsRequireRender , productsDB} = useSelector((state : any)=>state.product)
+  const {isProductsRequireRender , productsDB , isWaitingForGetProducts ,isWaitingForDeleteProduct } = useSelector((state : any)=>state.product)
   
   const formattedProducts = productsDB ? productsDB.map(({_id , ...state})=>{
      return {...state , key : _id}
   }) : []
   
-  useEffect(()=>{
+useEffect(()=>{
     dispatch(getAllProducts({url : 'product'}))
-  } , [dispatch , isProductsRequireRender])
+} , [dispatch , isProductsRequireRender])
 
-const confirmDelete = ()=>{
-  console.log('fdfdfdfdfd')
+const confirmDelete = (id : any)=>{
+   // delete function
+   dispatch(deleteProduct({url : 'product'  , id : id , toastMessage : 'تم حذف المنتج بنجاح'}))
 }  
 
 const columns: ColumnsType<DataType> = [
     {
       title: "اسم المنتج",
       dataIndex: "name",
-      key: "name",
-      
+      key: "name",      
     },
     {
       title: "عدد الانواع",
@@ -92,7 +92,7 @@ const columns: ColumnsType<DataType> = [
       title: 'الاجرائات',
       dataIndex: '',
       key: 'x',
-      render: () => <a><DeleteOutlined onClick={()=> DeleteModal('khomra' , confirmDelete)} style={{ cursor : 'pointer' }}/></a> ,
+      render: (e) => <a><DeleteOutlined onClick={()=> DeleteModal(e.name, isWaitingForDeleteProduct ,()=>confirmDelete(e.key))}/></a> ,
     },
   ];
   return (
@@ -100,8 +100,8 @@ const columns: ColumnsType<DataType> = [
     <MainContainer title="اضافة منتج جديد" isCollapse={true}>
       <AddNewProduct/>
     </MainContainer>
-        <TableWrapper title='المتجات داخل المخزن' columns={columns} data={formattedProducts}/>
-        </>
+        <TableWrapper key={'products'} loading={isWaitingForGetProducts} title='المتجات داخل المخزن' columns={columns} data={formattedProducts}/>
+    </>
      
   )
 }

@@ -29,6 +29,14 @@ export const createNewProduct = createAsyncThunk(
      }
  );
 
+
+ export const deleteProductType = createAsyncThunk(
+   "product/deleteType",
+    async (information, thunkAPI) => {
+     return UpdateDB(information, thunkAPI);
+    }
+);
+
  export const updateProduct = createAsyncThunk(
     "product/updateProduct",
      async (information, thunkAPI) => {
@@ -36,6 +44,12 @@ export const createNewProduct = createAsyncThunk(
      }
  );
 
+ export const updateProductType = createAsyncThunk(
+   "product/updateTypeA",
+    async (information, thunkAPI) => {
+     return UpdateDB(information, thunkAPI);
+    }
+);
  const initialState = {
    productsDB : [] , 
    isWaitingForGetProducts : false , 
@@ -44,6 +58,9 @@ export const createNewProduct = createAsyncThunk(
    errorField : '' , 
    isProductsRequireRender : false , 
    isWaitingForAddOrder : false , 
+   isWaitingForDeleteProduct : false , 
+   isWaitingForUpdateProduct : false , 
+   isErrorInUpdateProduct : false
 }
 const productSlice = createSlice({
    name : 'product' , 
@@ -53,9 +70,8 @@ const productSlice = createSlice({
          state.errorMessage = undefined
       }
    } ,
-   
    extraReducers : (builder)=>{
-       //start of get All products
+       //start of get All products   Done!!!!!!!!!!!!!!!!!!1
        builder.addCase(getAllProducts.pending , (state )=>{
           state.isWaitingForGetProducts = true
        })
@@ -67,9 +83,9 @@ const productSlice = createSlice({
          state.isWaitingForGetProducts = false
          state.errorMessageInGet = action.payload.message 
       })
-     //end of get All products
+     //end of get All products Done!!!!!!!!!!!!!!!!!!1
     
-     //start of create product
+     //start of create product Done!!!!!!!!!!!!!!!!!!1
        builder.addCase(createNewProduct.pending , (state)=>{
          state.isWaitingForAddOrder = true
      })
@@ -83,23 +99,74 @@ const productSlice = createSlice({
         state.errorMessage =   action.payload.message
 
     })
-    //end of create product
+    //end of create product Done!!!!!!!!!!!!!!!!!!1
 
-     //start of delete product
-     builder.addCase(deleteProduct.pending , (state , action)=>{
-        console.log(state , action)
+     //start of delete product Done!!!!!!!!!!!!!!!!!!1
+     builder.addCase(deleteProduct.pending , (state)=>{
+        state.isWaitingForGetProducts = true
+        state.isWaitingForDeleteProduct =  true
      })
-     builder.addCase(deleteProduct.fulfilled , (state , action)=>{
-      console.log(state , action)
+     builder.addCase(deleteProduct.fulfilled , (state)=>{
+      state.isWaitingForGetProducts = false
+      state.isWaitingForDeleteProduct =  false
+      state.isProductsRequireRender = !state.isProductsRequireRender 
      })
-     builder.addCase(deleteProduct.rejected , (state , action)=>{
-      console.log(state , action)
+     builder.addCase(deleteProduct.rejected , (state )=>{
+      state.isWaitingForGetProducts = false
+      state.isWaitingForDeleteProduct =  false
     })
-    //end of delete product
+    //end of delete product Done!!!!!!!!!!!!!!!!!!1
 
-     //start of update product
+     //start of delete product type Done!!!!!!!!!!!!!!!!!!1
+   builder.addCase(deleteProductType.pending , (state)=>{
+      state.isWaitingForGetProducts = true
+      state.isWaitingForDeleteProduct =  true
+   })
+   builder.addCase(deleteProductType.fulfilled , (state)=>{
+     state.isWaitingForGetProducts = false
+     state.isWaitingForDeleteProduct =  false
+     state.isProductsRequireRender = !state.isProductsRequireRender 
+   })
+   builder.addCase(deleteProductType.rejected , (state )=>{
+     state.isWaitingForGetProducts = false
+     state.isWaitingForDeleteProduct =  false
+  })
+    //end of delete product delete product type Done!!!!!!!!!!!!!!!!!!1
     
-    //end of update product
+
+    //star update just products without type Done!!!!!!!!!!!!!!!!!!1
+    builder.addCase(updateProduct.pending , (state)=>{
+      state.isWaitingForGetProducts = true
+      state.isWaitingForUpdateProduct = true 
+      state.isErrorInUpdateProduct = false
+   })
+   builder.addCase(updateProduct.fulfilled , (state)=>{
+     state.isWaitingForGetProducts = false
+     state.isWaitingForUpdateProduct = false 
+     state.isProductsRequireRender = !state.isProductsRequireRender 
+   })
+   builder.addCase(updateProduct.rejected , (state )=>{
+     state.isWaitingForGetProducts = false
+     state.isErrorInUpdateProduct = true
+  }) 
+  //end update just products without type Done!!!!!!!!!!!!!!!!!!1
+
+//star update just products without type Done!!!!!!!!!!!!!!!!!!1
+builder.addCase(updateProductType.pending , (state)=>{
+   state.isWaitingForGetProducts = true
+   state.isWaitingForUpdateProduct = true 
+   state.isErrorInUpdateProduct = false
+})
+builder.addCase(updateProductType.fulfilled , (state)=>{
+  state.isWaitingForGetProducts = false
+  state.isWaitingForUpdateProduct = false 
+  state.isProductsRequireRender = !state.isProductsRequireRender 
+})
+builder.addCase(updateProductType.rejected , (state )=>{
+  state.isWaitingForGetProducts = false
+  state.isErrorInUpdateProduct = true
+}) 
+//end update just products without type Done!!!!!!!!!!!!!!!!!!1
  }
 })
 export default productSlice

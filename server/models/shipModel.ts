@@ -3,11 +3,11 @@ import mongoose from 'mongoose'
 const shipSchema = new mongoose.Schema({
     name : {
         type : String , 
-        require : [true , 'you must provide ship name']
+        require : [true , 'لابد من اضافة اسم مسئول الشحن']
     } , 
     phone : {
         type : String , 
-        required : [true , "You Must Provide Contact Phone"] , 
+        required : [true , "لابد من اضافة رقم هاتف مسئول الشحن"] , 
         maxLength : 11 ,
         minLength : 11 , 
         unique : true 

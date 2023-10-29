@@ -5,15 +5,17 @@ import AxiosInstance from "../AxiosInstance/AxiosInstance";
 import DisplayToast from "../DisplayToast/DisplayToast";
 
 const UpdateDB = async (information : any , thunkAPI : GetThunkAPI<any>) => {
-    const {   url , data  , token  , toastMessage} = information;
+    const {   url , data  , token  , toastMessage } = information;
     const {  rejectWithValue } = thunkAPI;
+    console.log(token)
     try {
       const response = await AxiosInstance.patch(url , data ,  {
-        headers :  {
-          Authorization: "Bearer " + token,
-        } 
+        // headers :  {
+        //   Authorization: "Bearer " + token,
+        // } 
       });
       if (response.status === 200 || response.status === 201) {  
+        
         DisplayToast(toastMessage , true)
         return true;
       } 

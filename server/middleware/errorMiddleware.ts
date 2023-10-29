@@ -30,7 +30,7 @@ const errorMiddelware = (err: Error  , req: Request, res: Response , next : Next
     }
     if (err instanceof MongoServerError  && err.code === 11000) {
         customError.field = 'email'
-        customError.message = `هذا البريد مستخدم بالفعل`
+        customError.message = `هذا البريد / الهاتف مستخدم بالفعل`
         customError.statusCode = 401
     }
 

@@ -5,10 +5,10 @@ import throwNotFoundError from "../errors/NotFoundError";
 import throwBadRequestError from "../errors/BadRequestError";
 export const createNewShip = async (req: Request, res: Response) => {
   const { name, phone } = req.body;
-  const { permissions } = req.user;
-  const isHaveAuth = permissions.create.includes("ship");
-  if (!isHaveAuth || !permissions)
-    throwForbiddnError("ليس لديك الصلاحية لاضافة مسئول شحن");
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.create.includes("ship");
+  // if (!isHaveAuth || !permissions)
+    // throwForbiddnError("ليس لديك الصلاحية لاضافة مسئول شحن");
   if (!name) throwBadRequestError("لا بد من توافر اسم مسئول الشحن", "name");
   if (!phone)
     throwBadRequestError("لا بد من توافر  رقم هاتف مسئول الشحن", "phone");

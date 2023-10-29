@@ -9,8 +9,9 @@ interface TableWrapperInterface {
     data : any , 
     columns : any , 
     title : string ,
+    loading : boolean ,
 }
-const TableWrapper = ({data , columns , title} : TableWrapperInterface) => {
+const TableWrapper = ({data , columns , title , loading} : TableWrapperInterface) => {
   const exportToExcel = () => {
     // Get the table data
     const table = document.getElementById("my-table");
@@ -36,6 +37,7 @@ const TableWrapper = ({data , columns , title} : TableWrapperInterface) => {
          tooltip={<div>تنزيل ملف الاكسيل</div>}
          />
         <Table 
+        loading={loading}
         expandable={{
           expandedRowRender: (record , index) => <ExpandProductList product={record} key={index}/> ,
           rowExpandable: (record) => record.type  ,
