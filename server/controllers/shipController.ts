@@ -16,21 +16,21 @@ export const createNewShip = async (req: Request, res: Response) => {
   res.status(201).json({ data: newShip });
 };
 export const getAllShips = async (req: Request, res: Response) => {
-  const { permissions } = req.user;
-  const isHaveAuth = permissions.view.includes("ship");
-  if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لتصفح المنتجات");
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.view.includes("ship");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لتصفح المنتجات");
   const allShips = await ShipModel.find({});
   res.status(200).json({ data: allShips });
 };
 export const updateShip = async (req: Request, res: Response) => {
   const {
-    user: { permissions },
+    // user: { permissions },
     params: { id: shipId },
     body: { name, phone },
   } = req;
-  const isHaveAuth = permissions.update.includes("ship");
-  if (!isHaveAuth || !permissions)
-    throwForbiddnError("ليس لديك الصلاحية لتعديل مسئول شحن");
+  // const isHaveAuth = permissions.update.includes("ship");
+  // if (!isHaveAuth || !permissions)
+  //   throwForbiddnError("ليس لديك الصلاحية لتعديل مسئول شحن");
   if (!name && !phone)
     throwBadRequestError("لابد من ادخال البيانات المراد تعديلها");
   const updatedShip = await ShipModel.findOneAndUpdate(
@@ -43,11 +43,11 @@ export const updateShip = async (req: Request, res: Response) => {
 };
 export const deleteShip = async (req: Request, res: Response) => {
   const {
-    user: { permissions },
+    // user: { permissions },
     params: { id: shipId },
   } = req;
-  const isHaveAuth = permissions?.delete?.includes("ship");
-  if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لحذف مسئول شحن");
+  // const isHaveAuth = permissions?.delete?.includes("ship");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لحذف مسئول شحن");
   const ship = await ShipModel.findOneAndRemove({
     _id: shipId,
   });

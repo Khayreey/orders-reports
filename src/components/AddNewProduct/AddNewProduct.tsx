@@ -13,6 +13,7 @@ const AddNewProduct = () => {
   return (
     <>
       <MainContainer title="اضافة منتج جديد">
+       
         <Segmented
           style={{ marginBottom: "20px" }}
           onChange={(value) => {

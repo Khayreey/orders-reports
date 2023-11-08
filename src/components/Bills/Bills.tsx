@@ -6,7 +6,7 @@ import BillOfLading from '../BillOfLading/BillOfLading';
 
 
 
-const Bills  = React.forwardRef((_ , ref) => 
+const Bills  = React.forwardRef((_ , ref : React.LegacyRef<HTMLDivElement>) => 
 {
     const onChange = (currentSlide: number) => {
     console.log(currentSlide);

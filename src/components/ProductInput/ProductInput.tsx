@@ -46,7 +46,7 @@ const ProductInput = ({
     { value: "fgfgf", label: "fdfdfd" },
   ];
   const addProduct = (value: any) => {
-    console.log(value);
+    
     const newProducts = [...products];
     const filtered = newProducts.findIndex((e) => e.id === id);
 

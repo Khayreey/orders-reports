@@ -6,11 +6,16 @@ const orderSchema = new mongoose.Schema({
             product : {
                 type : mongoose.Schema.Types.ObjectId , 
                 ref : 'Product' ,
-                required : [true , 'you must provide product']
-            } , 
+                required : [true , 'لابد من توافر المنتج']
+            }, 
+            type : {
+                type : mongoose.Schema.Types.ObjectId ,
+                ref :  'Product.type' ,
+                 
+            } ,
             quantity : {
                type : Number , 
-               required : [true , "You Must Provide Product quantity"] , 
+               required : [true , "لابد من توافر الكمية"] , 
                minLength : 1 , 
                default : 1
             }
@@ -23,7 +28,7 @@ const orderSchema = new mongoose.Schema({
     } ,
     status : {
         type : String ,
-        enum: ['now', 'pending' , 'done' , 'halfDone' , 'return'] ,
+        enum: ['معلق', 'قيد التشغيل' , 'تم التسليم' , 'تسليم جزئي' , 'مرتجع'] ,
         required : [true , 'Must Provide Status']
     } ,
     address : {
@@ -31,6 +36,10 @@ const orderSchema = new mongoose.Schema({
     } , 
     notes : {
         type : String , 
+    } , 
+    country : {
+        type : String , 
+        required : [true , 'لابد من اضافة المحافظة / المركز']    
     }
 })
 

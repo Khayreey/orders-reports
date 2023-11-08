@@ -157,7 +157,7 @@ export const updateTypeInProduct = async (req: Request, res: Response) => {
     const selectedOne =
       updatedP &&
       updatedP.type &&
-      updatedP.type.find((e) => e._id.toString() === typeId);
+      updatedP.type.find((e : any) => e._id.toString() === typeId);
     if (!selectedOne) throwNotFoundError("لا يوجد نوع من هذا المنتج متوافق");
     if (quantity + selectedOne?.quantity < 0)
       throwBadRequestError("الكمية الموجودة غير متاحة");
@@ -211,7 +211,7 @@ export const removeTypeFromProduct = async (req: Request, res: Response) => {
   const selectedOne =
     productToRemoveTypeFrom &&
     productToRemoveTypeFrom.type &&
-    productToRemoveTypeFrom.type.find((e) => e._id.toString() === typeId);
+    productToRemoveTypeFrom.type.find((e :any) => e._id.toString() === typeId);
 
    if (!selectedOne) throwNotFoundError("لا يوجد نوع من هذا المنتج متوافق");
 

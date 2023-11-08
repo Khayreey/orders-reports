@@ -23,7 +23,7 @@ const Products = () => {
   const dispatch : DispatchInterface = useDispatch()
   const {isProductsRequireRender , productsDB , isWaitingForGetProducts ,isWaitingForDeleteProduct } = useSelector((state : any)=>state.product)
   
-  const formattedProducts = productsDB ? productsDB.map(({_id , ...state})=>{
+  const formattedProducts = productsDB ? productsDB.map(({_id , ...state} : any)=>{
      return {...state , key : _id}
   }) : []
   
@@ -100,7 +100,7 @@ const columns: ColumnsType<DataType> = [
     <MainContainer title="اضافة منتج جديد" isCollapse={true}>
       <AddNewProduct/>
     </MainContainer>
-        <TableWrapper key={'products'} loading={isWaitingForGetProducts} title='المتجات داخل المخزن' columns={columns} data={formattedProducts}/>
+        <TableWrapper keyTerm="product" key={'products'} loading={isWaitingForGetProducts} title='المتجات داخل المخزن' columns={columns} data={formattedProducts}/>
     </>
      
   )

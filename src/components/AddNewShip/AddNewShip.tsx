@@ -19,9 +19,15 @@ const AddNewShip = () => {
   const [shipPhone , setShipPhone] = useState('')
   const [isFormError, setIsFormError] = useState(false);
   useEffect(() => {
-    if (shipName === "" || shipPhone === "" || arabicRX.test(shipName) === false
-    || numbersRX.test(shipPhone) === false || !shipPhone.startsWith('010') && !shipPhone.startsWith('011')
-    && !shipPhone.startsWith('012') && !shipPhone.startsWith('015')
+    if (
+    shipName === "" 
+    || shipPhone === "" 
+    || arabicRX.test(shipName) === false 
+    || shipPhone.length !==11 
+    || numbersRX.test(shipPhone) === false || shipPhone.startsWith('010') === false
+    && shipPhone.startsWith('011') === false 
+    && shipPhone.startsWith('012') === false 
+    && shipPhone.startsWith('015') === false
     ) {
       setIsFormError(true);
       return;
@@ -69,6 +75,7 @@ const AddNewShip = () => {
         prefix={<UserOutlined  />}
       />
     </Form.Item>
+   
     <Form.Item
       hasFeedback
       name={"phone"}
@@ -111,7 +118,7 @@ const AddNewShip = () => {
       loading={isWaitingForAddShip}
       style={{ width: "100%", marginTop: "1rem" }}
     >
-      إضافة المنتج
+      إضافة مسئول الشحن
     </Button>
   </Form>
   )

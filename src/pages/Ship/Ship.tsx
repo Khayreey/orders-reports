@@ -18,10 +18,13 @@ interface DataType {
 }
 
 const Ship = () => {
-  const {isWaitingForShips , ships , errorMessageInGetShips , isWaitingForDeleteShip , isShipsRequireRender} = useSelector((state : any)=>state.ship)
+  const {isWaitingForShips , ships  , isWaitingForDeleteShip , isShipsRequireRender} = useSelector((state : any)=>state.ship)
   const dispatch : DispatchInterface = useDispatch()
-  console.log(errorMessageInGetShips , isWaitingForDeleteShip  , isShipsRequireRender)
-
+  
+  const formattedShips = ships? ships.map(({ _id , ...state} : any)=>{
+    return {...state , key : _id}
+  }) : []
+  
   useEffect(()=>{
      dispatch(getAllShips({url : 'ship'}))
   } , [isShipsRequireRender , dispatch])
@@ -42,7 +45,7 @@ const Ship = () => {
       title: 'الاجرائات',
       dataIndex: '',
       key: 'x',
-      render: (e) => <a><DeleteOutlined onClick={()=> DeleteModal(e.name, isWaitingForDeleteShip ,()=>confirmDelete(e.key))}/></a> ,
+      render: (e) => <a><DeleteOutlined onClick={()=> DeleteModal(e.name, isWaitingForDeleteShip ,()=>confirmDelete(e._id))}/></a> ,
     },
   ];
   const confirmDelete = (id : any)=>{
@@ -54,7 +57,7 @@ const Ship = () => {
       <MainContainer title="اضافة مسئول شحن" isCollapse={true}>
         <AddNewShip />
       </MainContainer>
-       <TableWrapper key={'ships'} loading={isWaitingForShips} title='جميع مسئولي الشحن' columns={columns} data={ships}/>
+       <TableWrapper keyTerm="ship" key={'ships'} loading={isWaitingForShips} title='جميع مسئولي الشحن' columns={columns} data={formattedShips}/>
     </>
   )
 }

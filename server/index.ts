@@ -31,7 +31,7 @@ app.use(cors(corsOptions))
 app.use('/api/user' , UserRoute)
 app.use('/api/product'  , ProductRoute)
 app.use('/api/ship'  , ShipRoute)
-app.use('/api/order' , authMiddelware , OrderRoute)
+app.use('/api/order'  , OrderRoute)
 // app.use('/api/contacts' , authMiddelware , ContactsRoute)
 // app.use('/api/chat' , authMiddelware , ChatRoute)
 
@@ -47,6 +47,7 @@ const start = async ()=>{
     try {
         if(!process.env.MONGO_URL) throw new Error('Key to Connect Is Missed')
         await ConnectDB(process.env.MONGO_URL)
+        //await ConnectDB('mongodb://178.16.131.156:27017/senyorita')
         app.listen(PORT , ()=>{
             console.log(`app is listening on ${PORT} port`)
         })

@@ -79,7 +79,7 @@ const ExpandProductList = ({ product }: ExpandProductListInterface) => {
           validateTrigger="onBlur"
           rules={[{ required: true, message: "اسم النوع مطلوب" }]}
           tooltip={"  مطلوب"}
-        >
+          >
           <Input
             placeholder="اسم النوع"
             onChange={(e) => setTypeName(e.target.value)}

@@ -77,7 +77,7 @@ const AddNewOrder = () => {
               {productArray.map((_, index) => {
                 return (
                   <ProductInput
-                 
+                    product={{}}
                     setProducts={setProducts}
                     id={index}
                     isFirst={index === 0 && productArray.length === 1}

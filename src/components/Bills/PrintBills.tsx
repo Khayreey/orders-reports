@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {  useRef } from "react";
 
 import { useReactToPrint } from "react-to-print";
@@ -6,7 +7,7 @@ import { Button } from "antd";
 
 
 export default function PrintBills() {
-  const componentRef = useRef(null);
+  const componentRef = useRef<any>(null);
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
   });

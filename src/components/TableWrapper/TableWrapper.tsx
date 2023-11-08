@@ -4,14 +4,16 @@ import {  FloatButton, Table } from 'antd'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ExpandProductList from '../ExpandProductList/ExpandProductList';
+import ExpandShip from '../ExpandShip/ExpandShip';
 
 interface TableWrapperInterface {
     data : any , 
     columns : any , 
     title : string ,
     loading : boolean ,
+    keyTerm : string ,
 }
-const TableWrapper = ({data , columns , title , loading} : TableWrapperInterface) => {
+const TableWrapper = ({data , columns , title , loading , keyTerm} : TableWrapperInterface) => {
   const exportToExcel = () => {
     // Get the table data
     const table = document.getElementById("my-table");
@@ -39,8 +41,14 @@ const TableWrapper = ({data , columns , title , loading} : TableWrapperInterface
         <Table 
         loading={loading}
         expandable={{
-          expandedRowRender: (record , index) => <ExpandProductList product={record} key={index}/> ,
-          rowExpandable: (record) => record.type  ,
+          expandedRowRender: (record , index) => {
+           if(keyTerm === 'product') {
+              return <ExpandProductList product={record} key={index}/>
+            }
+            if(keyTerm === 'ship')
+            return <ExpandShip record={record} key={index}/>  
+          }  ,
+          // rowExpandable: (record) => record.type  ,
         }}
         columns={columns} dataSource={data} style={{direction : 'rtl'}} id="my-table"/>
     </MainContainer>

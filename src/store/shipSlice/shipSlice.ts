@@ -10,21 +10,21 @@ import UpdateDB from "../../helpers/UpdateDB/UpdateDB";
 
 export const getAllShips = createAsyncThunk(
    "ship/all",
-    async (information, thunkAPI) => {
+    async (information : any, thunkAPI) => {
      return GetFromDB(information, thunkAPI);
     }
 );
 
 export const createNewShip = createAsyncThunk(
     "ship/create",
-     async (information, thunkAPI) => {
+     async (information : any, thunkAPI) => {
       return AddToDB(information, thunkAPI);
      }
  );
 
  export const deleteShip = createAsyncThunk(
     "ship/delete",
-     async (information, thunkAPI) => {
+     async (information : any, thunkAPI) => {
       return DeleteFromDB(information, thunkAPI);
      }
  );
@@ -32,7 +32,7 @@ export const createNewShip = createAsyncThunk(
 
  export const updateShip = createAsyncThunk(
    "ship/update",
-    async (information, thunkAPI) => {
+    async (information : any, thunkAPI) => {
      return UpdateDB(information, thunkAPI);
     }
 );
@@ -91,25 +91,29 @@ const shipSlice = createSlice({
      })
      builder.addCase(deleteShip.fulfilled , (state )=>{
         state.isWaitingForShips = false
-        state.isWaitingForDeleteShip = true
+        state.isWaitingForDeleteShip = false
         state.isShipsRequireRender = !state.isShipsRequireRender
-
      })
      builder.addCase(deleteShip.rejected , (state )=>{
         state.isWaitingForShips = false
-        state.isWaitingForDeleteShip = true
+        state.isWaitingForDeleteShip = false
 
     })
    //end of of  delete  Done!!!!!!!!!!!!!!!!!!1
     //start of update 
-    builder.addCase(updateShip.pending , (state )=>{
-        
+     builder.addCase(updateShip.pending , (state )=>{
+      state.isWaitingForShips = true
+      state.isWaitingForUpdateShip = true 
+      state.isErrorInUpdateShip = false
      })
-     builder.addCase(updateShip.fulfilled , (state , action)=>{
-       
+     builder.addCase(updateShip.fulfilled , (state)=>{
+      state.isWaitingForShips = false
+      state.isWaitingForUpdateShip = false 
+      state.isShipsRequireRender = !state.isShipsRequireRender 
      })
-     builder.addCase(updateShip.rejected , (state , action : any)=>{
-       
+     builder.addCase(updateShip.rejected , (state )=>{
+      state.isWaitingForShips = false
+      state.isErrorInUpdateShip = true
     })
    //end of update
  }

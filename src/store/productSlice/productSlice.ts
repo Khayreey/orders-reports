@@ -10,21 +10,21 @@ import UpdateDB from "../../helpers/UpdateDB/UpdateDB";
 
 export const getAllProducts = createAsyncThunk(
    "product/all",
-    async (information, thunkAPI) => {
+    async (information : any, thunkAPI) => {
      return GetFromDB(information, thunkAPI);
     }
 );
 
 export const createNewProduct = createAsyncThunk(
     "product/createOrder",
-     async (information, thunkAPI) => {
+     async (information : any, thunkAPI) => {
       return AddToDB(information, thunkAPI);
      }
  );
 
  export const deleteProduct = createAsyncThunk(
     "product/deleteOrder",
-     async (information, thunkAPI) => {
+     async (information : any, thunkAPI) => {
       return DeleteFromDB(information, thunkAPI);
      }
  );
@@ -32,21 +32,21 @@ export const createNewProduct = createAsyncThunk(
 
  export const deleteProductType = createAsyncThunk(
    "product/deleteType",
-    async (information, thunkAPI) => {
+    async (information : any, thunkAPI) => {
      return UpdateDB(information, thunkAPI);
     }
 );
 
  export const updateProduct = createAsyncThunk(
     "product/updateProduct",
-     async (information, thunkAPI) => {
+     async (information : any, thunkAPI) => {
       return UpdateDB(information, thunkAPI);
      }
  );
 
  export const updateProductType = createAsyncThunk(
    "product/updateTypeA",
-    async (information, thunkAPI) => {
+    async (information : any, thunkAPI) => {
      return UpdateDB(information, thunkAPI);
     }
 );
