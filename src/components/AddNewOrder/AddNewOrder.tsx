@@ -5,35 +5,114 @@ import { Formik } from "formik";
 import addOrderSchema, { yupSync } from "../../validationSchema/AddOrderSchema";
 import { AiOutlineUser, AiOutlinePhone, AiOutlinePound } from "react-icons/ai";
 import ProductInput from "../ProductInput/ProductInput";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import CustomSelect from "../CustomSelect/CustomSelect";
 import countryptions from "../../data/countryData";
 import CustomVarSelectFormik from "../CustomVarSelectFormik/CustomVarSelectFormik";
 import CustomInputNumberFormik from "../CustomInputNumberFormik/CustomInputNumberFormik";
 import MainContainer from "../../Containers/MainContainer/MainContainer";
+import { getAllProducts } from "../../store/productSlice/productSlice";
+import DispatchInterface from "../../types/DispatchInterface";
+import { useDispatch, useSelector } from "react-redux";
 
 const AddNewOrder = () => {
-  const [productArray, setProductArray] = useState([{ product: "" }]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [isFormValid , setIsFormValid] = useState(false)
+  
+  const dispatch : DispatchInterface = useDispatch()
+  const {  productsDB   } = useSelector((state : any)=>state.product)
+  useEffect(()=>{
+    dispatch(getAllProducts({url : 'product'}))
+} , [dispatch ])
 
+const [formattedProducts , setFormattedProducts] : any = useState([])
+
+useEffect(()=>{
+if(!productsDB || productsDB.length < 0) return 
+const cloneProduct = productsDB && productsDB.length > 0 ? 
+productsDB.map(({_id , type , name , quantity} : any)=>{
+  if(type.length === 0) {
+    if(quantity === 0) {
+      return {value : _id , label : `${name}  متاح ${quantity}` , disabled : true}
+    } else {
+      return {value : _id , label : `${name}  متاح ${quantity}` , disabled : false}
+    }
+    
+  }
+  else {
+    const types = type.map(({_id , name} : any) => {
+      return {value : _id , label : name}
+    })
+    return {value : _id , label : name , children : [...types]}
+  }
+}) : []
+
+setFormattedProducts(cloneProduct)
+} , [productsDB])
+
+
+
+
+  const [products, setProducts] = useState<any[]>([
+    { value: [''], quantity: 1, id: 0 },
+  ]);
   const addProductInput = () => {
-    setProductArray((state) => {
-      return [...state, { product: "" }];
+    setProducts((state) => {
+      const lastId = state.at(-1);
+      if (!lastId) return [{ value: [''], quantity: 1, id: 0 }];
+      else {
+        return [
+          ...state,
+          { value: [''] ,  quantity: 1, id: Number(lastId.id) + 1  },
+        ];
+      }
     });
   };
+  
 
   const deleteProduct = (ind: number) => {
-    const newArray = [...productArray];
-    const filteredArray = newArray
-      .slice(0, ind)
-      .concat(newArray.slice(ind + 1));
-    setProductArray(filteredArray);
+    const newArray = [...products];
+    const filteredOne = newArray.filter((e) => e.id !== ind);
+    setProducts(filteredOne);
   };
+  
+  useEffect(() => {
+    if (!formattedProducts || formattedProducts.length === 0 || products.length === 0) return;
+    const clone = formattedProducts.map((e : any) => {
+      if (e.children) {
+        return {
+          ...e,
+          children: e.children.map((type : any) => ({
+            ...type,
+            disabled: products.some((pro) => pro.value && pro.value.length === 2 && pro.value[1] === type.value),
+          })),
+        };
+      } else {
+        return {
+          ...e,
+          disabled: products.some((pro) => pro.value && (pro.value[0] === e.value || pro.value[1] === e.value)),
+        };
+      }
+    });
+  
+    setFormattedProducts(clone);
+  }, [products]);
+    
+// validate products
+ useEffect(()=>{
+  if(products[0].value === '') return 
+  const isTrue =  products.some((e)=> e.value && e.value[0] !== '')
+  if(isTrue) {
+    setIsFormValid(true)
+  }
+  else {
+    setIsFormValid(false)
+  }
+ } , [products]) 
 
   return (
     <MainContainer title="اضافة طلب جديد" isCollapse={true}>
       <Formik
+    
         initialValues={{
           name: "",
           phone: "",
@@ -45,11 +124,12 @@ const AddNewOrder = () => {
           ship: undefined,
         }}
         onSubmit={(values) => {
-          console.log(values);
+          console.log(products , values);
         }}
         validationSchema={addOrderSchema}
       >
-        {({ handleSubmit }) => {
+        {({ handleSubmit , isValid  }) => {
+         
           return (
             <Form onSubmitCapture={handleSubmit} layout="vertical">
               <CustomInput
@@ -74,22 +154,26 @@ const AddNewOrder = () => {
                 placeholder="رقم هاتف بديل"
                 validation={yupSync}
               />
-              {productArray.map((_, index) => {
+              {products.map((e, index) => {
                 return (
                   <ProductInput
-                    product={{}}
-                    setProducts={setProducts}
-                    id={index}
-                    isFirst={index === 0 && productArray.length === 1}
-                    key={index}
-                    products={products}
-                    deleteProductInput={deleteProduct}
+options={formattedProducts}
+                  label="الاسم الفرعي"
+                  placeholder="اكتب اسم النوع الداخلي"
+                  Icon={<AiOutlinePhone />}
+                  setProducts={setProducts}
+                  product={e}
+                  id={e.id}
+                  isFirst={index === 0 && products.length === 1}
+                  key={index}
+                  products={products}
+                  deleteProductInput={deleteProduct}
                   />
                 );
               })}
               <Row justify="space-between">
                 <Col>
-                  {productArray.length < 10 ? (
+                  {products.length < 10 ? (
                     <FloatButton
                       type="primary"
                       icon={<PlusOutlined />}
@@ -118,12 +202,13 @@ const AddNewOrder = () => {
                 name="address"
                 validation={yupSync}
               />
-              <CustomSelect
-                Icon={<AiOutlinePhone />}
+              <CustomVarSelectFormik
+               
                 options={[{ value: "mmm", label: "fdfd" }]}
                 label="مسئول الشحن"
                 placeholder="قم باختيار مسئول الشحن"
                 name="ship"
+                
               />
               <CustomInputNumberFormik
                 Icon={<AiOutlinePound />}
@@ -145,6 +230,7 @@ const AddNewOrder = () => {
                 type="primary"
                 htmlType="submit"
                 style={{ width: "100%", marginTop: "1rem" }}
+                disabled={!isValid || !isFormValid}
               >
                 سجل الطلب
               </Button>

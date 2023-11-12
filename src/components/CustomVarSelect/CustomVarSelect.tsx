@@ -14,6 +14,7 @@ interface InputInterface {
   setProducts : any
   id : number , 
   products : any , 
+  value : any
 }
 const CustomVarSelect = ({
   required = true,
@@ -23,7 +24,7 @@ const CustomVarSelect = ({
   setProducts , 
   id , 
   products , 
-  
+  value
   
 }: InputInterface) => {
  
@@ -76,6 +77,7 @@ const CustomVarSelect = ({
         style={{width : '100%'}} size="large" options={options} dropdownRender={dropdownRender}
          placeholder={placeholder} 
          onChange={(e)=>addProduct(e)}
+         value={value}
          />
       </Form.Item>
     </>

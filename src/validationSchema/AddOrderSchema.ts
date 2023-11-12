@@ -7,7 +7,7 @@ const addOrderSchema = Yup.object().shape({
     .min(3, "هذا الاسم صغير")
     .max(50, "السم كبير")
     .required("السم مطلوب"),
-    price: Yup.string().required("سعر الطلب مطلوب"),
+    price: Yup.number().required("سعر الطلب مطلوب"),
   phone: Yup.string()
     .min(11, "لابد ان يكون رقم الهاتف 11 رقم")
     .max(11, "لابد ان يكون رقم الهاتف 11 رقم")
@@ -23,9 +23,11 @@ const addOrderSchema = Yup.object().shape({
     phoneT: Yup.string()
     .min(11, "لابد ان يكون رقم الهاتف 11 رقم")
     .max(11, "لابد ان يكون رقم الهاتف 11 رقم")
-    .required("رقم الهاتف مطلوب")
+    .optional()
     .test("startWith", "لابد ان يبدأ رقم الهاتف ب 011  أو 012 أو 010 أو 015", (value) => {
       return (
+        !value ||
+        value ==='' ||
         value.startsWith("010") ||
         value.startsWith("011") ||
         value.startsWith("012") ||
@@ -41,7 +43,8 @@ const addOrderSchema = Yup.object().shape({
    .required("السم مطلوب"),
    city :   Yup.array()
    .required("لابد ان تختار المحافظة والمدينة"), 
-   ship : Yup.string().required('لابد من اختيار مسئول الشحن') 
+   ship : Yup.array()
+   .required("لابد ان تختار المحافظة والمدينة"),  
 });
 
 export const yupSync = {

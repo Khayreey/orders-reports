@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Form, Select } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { yupSync } from "../../validationSchema/AddOrderSchema";
 import { useField } from "formik";
 
 interface InputInterface {
@@ -12,14 +12,19 @@ interface InputInterface {
   options : {
     value : string , 
     label : string
-  }[]
+  }[] , 
+  validation :  {
+    validator({ field }: any, value: string): Promise<void>;
+} 
+
 }
 const CustomSelect = ({
   required = true,
   placeholder,
   options , 
   label,
-  name
+  name , 
+  validation
 }: InputInterface) => {
   
 
@@ -27,14 +32,14 @@ const CustomSelect = ({
   return (
     <>
       <Form.Item
-        style={{ direction: "rtl", margin: "8px 0px" }}
+        style={{ direction: "rtl", margin: "25px 0px" }}
         hasFeedback
         label={label}
         {...meta}
         {...field}
         validateTrigger="onBlur"
        
-        rules={!required && meta.value ==='' ? [] : [yupSync]}
+        rules={!required && meta.value ==='' ? [] : [validation]}
         required={required}
         tooltip={
           required
@@ -44,6 +49,7 @@ const CustomSelect = ({
       >
         <Select
           size='large'
+          
           showSearch
           allowClear
           placeholder={placeholder}

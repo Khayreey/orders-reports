@@ -3,7 +3,6 @@ import { Response, Request } from "express";
 import throwBadRequestError from "../errors/BadRequestError";
 import ProductModel from "../models/productModel";
 import throwNotFoundError from "../errors/NotFoundError";
-import throwForbiddnError from "../errors/ForbiddnError";
 import hasDuplicates from "../utils/IsArrayEqual";
 
 export const getAllProducts = async (req: Request, res: Response) => {

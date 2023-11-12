@@ -35,7 +35,7 @@ const CustomVarSelectFormik = ({
   return (
     <>
       <Form.Item
-        style={{ direction: "rtl", margin: "8px 0px" }}
+        style={{ direction: "rtl", margin: "25px 0px" }}
         hasFeedback
         label={label}
       

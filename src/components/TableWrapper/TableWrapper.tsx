@@ -39,6 +39,7 @@ const TableWrapper = ({data , columns , title , loading , keyTerm} : TableWrappe
          tooltip={<div>تنزيل ملف الاكسيل</div>}
          />
         <Table 
+        
         loading={loading}
         expandable={{
           expandedRowRender: (record , index) => {
@@ -51,6 +52,7 @@ const TableWrapper = ({data , columns , title , loading , keyTerm} : TableWrappe
           // rowExpandable: (record) => record.type  ,
         }}
         columns={columns} dataSource={data} style={{direction : 'rtl'}} id="my-table"/>
+        
     </MainContainer>
   )
 }

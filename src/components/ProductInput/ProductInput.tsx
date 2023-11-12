@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Col, FloatButton, Row, Form, Input } from "antd";
-
 import CustomInputNumber from "../CustomInputNumber/CustomInputNumber";
 import { MdFormatListNumberedRtl } from "react-icons/md";
-
 import { MinusOutlined } from "@ant-design/icons";
 import CustomVarSelect from "../CustomVarSelect/CustomVarSelect";
 
@@ -18,6 +16,7 @@ interface ProductInputInterface {
   Icon?: React.ReactNode;
   label?: string;
   product: any;
+  options?: any;
 }
 
 const ProductInput = ({
@@ -31,22 +30,9 @@ const ProductInput = ({
   Icon,
   label,
   product,
+  options,
 }: ProductInputInterface) => {
-  const op = [
-    {
-      value: "القاهرة",
-      label: "القاهرة",
-      children: [
-        {
-          value: "مصر الجديدة",
-          label: "مصر الجديدة",
-        },
-      ],
-    },
-    { value: "fgfgf", label: "fdfdfd" },
-  ];
   const addProduct = (value: any) => {
-    
     const newProducts = [...products];
     const filtered = newProducts.findIndex((e) => e.id === id);
 
@@ -89,7 +75,8 @@ const ProductInput = ({
           <CustomVarSelect
             placeholder="اختر المنتج"
             label="المنتج"
-            options={op}
+            options={options}
+            value={product.value}
             id={id}
             setProducts={setProducts}
             products={products}
