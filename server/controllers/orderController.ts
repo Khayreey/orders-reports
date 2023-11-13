@@ -15,7 +15,7 @@ interface ProductInterface {
 
 export const createNewOrder = async (req: Request, res: Response) => {
   try {
-    const { products, shipId, address, country } = req.body;
+    const { products, shipId, address, country , name , phone , price } = req.body;
 
     if (!products || products.length === 0) {
       throwBadRequestError("لابد من توافر المنتجات");
@@ -72,6 +72,9 @@ export const createNewOrder = async (req: Request, res: Response) => {
       throwBadRequestError(isError);
     }
    
+    if (!name) throwBadRequestError('لابد من توافر اسم العميل')
+    if (!phone) throwBadRequestError("لابد من توافر رقم العميل")
+    if (!price) throwBadRequestError("لابد من توافر سعر الطلب")
     if (!country) throwBadRequestError("لابد من اختيار المحافظة / المركز");
     if (!address) throwBadRequestError("لابد من توافر العنوان التفصيلي");
     if (!shipId) throwBadRequestError("لابد من توافر مسئول الشحن");

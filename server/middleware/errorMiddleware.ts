@@ -34,7 +34,7 @@ const errorMiddelware = (err: Error  , req: Request, res: Response , next : Next
         customError.statusCode = 401
     }
 
-    return res.status(customError.statusCode).json({ message: customError.message , field : customError.field})
+    return res.status(customError.statusCode).json({ error: customError.message , field : customError.field})
 }
 
 export default errorMiddelware  

@@ -38,13 +38,8 @@ const CustomVarSelectFormik = ({
         style={{ direction: "rtl", margin: "25px 0px" }}
         hasFeedback
         label={label}
-      
-       
-       
         validateTrigger="onBlur"
-       
         {...field}
-        
         {...meta}
         rules={[yupSync]}
         required={required}

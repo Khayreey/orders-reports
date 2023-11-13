@@ -11,7 +11,8 @@ const shipSchema = new mongoose.Schema({
         maxLength : 11 ,
         minLength : 11 , 
         unique : true 
-    }
+    } , 
+
 })
 
 

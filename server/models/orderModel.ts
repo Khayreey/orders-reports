@@ -40,6 +40,21 @@ const orderSchema = new mongoose.Schema({
     country : {
         type : String , 
         required : [true , 'لابد من اضافة المحافظة / المركز']    
+    } , 
+    name : {
+        type : String , 
+        required : [true , 'لابد من توافر اسم العميل']  
+    } , 
+    phone : {
+        type : String , 
+        required : [true , 'لابد من توافر رقم العميل']  
+    } , 
+    anotherPhone : {
+        type : String , 
+    } , 
+    price : {
+        type : Number , 
+        required : [true , 'لابد من توافر سعر الطلب']  
     }
 })
 

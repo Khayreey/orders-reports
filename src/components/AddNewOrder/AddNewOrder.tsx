@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Col, Row, Button, FloatButton, Form } from "antd";
+import { FormInstance ,  Col, Row, Button, FloatButton, Form } from "antd";
 import CustomInput from "../CustomInput/CustomInput";
 import { Formik } from "formik";
 import addOrderSchema, { yupSync } from "../../validationSchema/AddOrderSchema";
 import { AiOutlineUser, AiOutlinePhone, AiOutlinePound } from "react-icons/ai";
 import ProductInput from "../ProductInput/ProductInput";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import countryptions from "../../data/countryData";
 import CustomVarSelectFormik from "../CustomVarSelectFormik/CustomVarSelectFormik";
@@ -14,17 +14,34 @@ import MainContainer from "../../Containers/MainContainer/MainContainer";
 import { getAllProducts } from "../../store/productSlice/productSlice";
 import DispatchInterface from "../../types/DispatchInterface";
 import { useDispatch, useSelector } from "react-redux";
+import { getAllShips } from "../../store/shipSlice/shipSlice";
+import { createNewOrder } from "../../store/orderSlice/orderSlice";
 
 const AddNewOrder = () => {
-  const [isFormValid , setIsFormValid] = useState(false)
   
+  const  formRef = useRef<FormInstance<any>>(null);
+  const [isFormValid , setIsFormValid] = useState(false)
+  const [isFormSubmit , setIsFormSubmit] = useState(false)
   const dispatch : DispatchInterface = useDispatch()
   const {  productsDB   } = useSelector((state : any)=>state.product)
   useEffect(()=>{
     dispatch(getAllProducts({url : 'product'}))
 } , [dispatch ])
+const {  ships  } = useSelector((state : any)=>state.ship)
 
 const [formattedProducts , setFormattedProducts] : any = useState([])
+const [formattedShips , setFormattedShips] = useState([])
+useEffect(()=>{
+  dispatch(getAllShips({url : 'ship'}))
+} , [ dispatch , isFormSubmit])
+
+useEffect(()=>{
+  if(!ships || ships.length ===0) return 
+  const data = ships? ships.map(({ _id , name} : any)=>{
+    return {value : _id , label : name}
+  }) : []
+  setFormattedShips(data)
+} , [ships])
 
 useEffect(()=>{
 if(!productsDB || productsDB.length < 0) return 
@@ -32,30 +49,33 @@ const cloneProduct = productsDB && productsDB.length > 0 ?
 productsDB.map(({_id , type , name , quantity} : any)=>{
   if(type.length === 0) {
     if(quantity === 0) {
-      return {value : _id , label : `${name}  متاح ${quantity}` , disabled : true}
+      return {value : _id , label : `${name}  متاح "${quantity}"` , disabled : true}
     } else {
-      return {value : _id , label : `${name}  متاح ${quantity}` , disabled : false}
+      return {value : _id , label : `${name}  متاح "${quantity}"` , disabled : false}
     }
     
   }
   else {
-    const types = type.map(({_id , name} : any) => {
-      return {value : _id , label : name}
-    })
-    return {value : _id , label : name , children : [...types]}
+    
+    return {value : _id , label : name , children : type.map(({_id , name , quantity} : any)=>{
+      if(quantity === 0) {
+        
+        return {value : _id , label : `${name}  متاح "${quantity}"` , disabled : true}
+      }
+      else {
+        return {value : _id , label : `${name}  متاح "${quantity}"` , disabled : false}
+      }
+    })}
   }
 }) : []
 
 setFormattedProducts(cloneProduct)
 } , [productsDB])
 
-
-
-
-  const [products, setProducts] = useState<any[]>([
+const [products, setProducts] = useState<any[]>([
     { value: [''], quantity: 1, id: 0 },
   ]);
-  const addProductInput = () => {
+const addProductInput = () => {
     setProducts((state) => {
       const lastId = state.at(-1);
       if (!lastId) return [{ value: [''], quantity: 1, id: 0 }];
@@ -69,13 +89,13 @@ setFormattedProducts(cloneProduct)
   };
   
 
-  const deleteProduct = (ind: number) => {
+const deleteProduct = (ind: number) => {
     const newArray = [...products];
     const filteredOne = newArray.filter((e) => e.id !== ind);
     setProducts(filteredOne);
   };
   
-  useEffect(() => {
+useEffect(() => {
     if (!formattedProducts || formattedProducts.length === 0 || products.length === 0) return;
     const clone = formattedProducts.map((e : any) => {
       if (e.children) {
@@ -109,29 +129,63 @@ setFormattedProducts(cloneProduct)
   }
  } , [products]) 
 
+ 
   return (
     <MainContainer title="اضافة طلب جديد" isCollapse={true}>
-      <Formik
-    
+      <Formik   
         initialValues={{
           name: "",
           phone: "",
           phoneT: "",
           address: "",
-          city: undefined,
+          city: [null],
           details: "",
           price: "",
-          ship: undefined,
+          ship: [null],
         }}
-        onSubmit={(values) => {
+        onSubmit={(values , helpers) => {
           console.log(products , values);
+          const chosenProducts = products.filter((e)=>e.value[0] !== '')
+          const formattedChosen = chosenProducts.map((e)=>{
+            if(e.value.length === 2) {
+              return {product : e.value[0] , typeId : e.value[1] , quantity : e.quantity}
+            }
+            else {
+              return {product : e.value[0] , quantity : e.quantity}
+            }
+          })
+          
+          dispatch(createNewOrder(
+            {url : 'order' , clearForm : ()=> {
+              helpers.resetForm()
+
+              setProducts(()=>{
+                return [{ value: [''], quantity: 1, id: 0 }]
+              } )
+              formRef?.current?.resetFields();
+              setIsFormSubmit((e)=>{
+                return !e
+              })
+            }  ,
+             toastMessage : 'تم اضافة الطلب بنجاح' ,
+             data : {shipId : values.ship ? values.ship[0] : "" ,
+             address : values.address , 
+             notes : values.details , 
+             country : values.city && values.city.length !==0  ? values.city.toString() : "", 
+             price : values.price , 
+             name : values.name , 
+             phone : values.phone , 
+             anotherPhone : values.phoneT , 
+             products : formattedChosen ,
+              }
+            }))
+
         }}
         validationSchema={addOrderSchema}
       >
         {({ handleSubmit , isValid  }) => {
-         
           return (
-            <Form onSubmitCapture={handleSubmit} layout="vertical">
+            <Form onSubmitCapture={handleSubmit} layout="vertical" ref={formRef}>
               <CustomInput
                 Icon={<AiOutlineUser />}
                 label="الاسم"
@@ -203,12 +257,10 @@ options={formattedProducts}
                 validation={yupSync}
               />
               <CustomVarSelectFormik
-               
-                options={[{ value: "mmm", label: "fdfd" }]}
+                options={formattedShips}
                 label="مسئول الشحن"
                 placeholder="قم باختيار مسئول الشحن"
                 name="ship"
-                
               />
               <CustomInputNumberFormik
                 Icon={<AiOutlinePound />}

@@ -21,9 +21,10 @@ const AddToDB = async (information : any , thunkAPI : GetThunkAPI<any>) => {
         return response.data.data;
       }
     } catch (err : any) {
-        const message =   err.response.data.message ? err.response.data.message : 'حاول في وقت لاحق'
+      
+        const message =   err.response ? err.response.data.error : 'حاول في وقت لاحق'
       DisplayToast(message , false)
-      throw rejectWithValue(err.response.data);
+      throw rejectWithValue(message);
     }
 };
 export default AddToDB
