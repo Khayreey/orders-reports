@@ -18,7 +18,6 @@ function App() {
         { path: "/", element: <Home /> },
         {path: "/orders", element: <Orders /> },
         {path: "/products", element: <Products /> },
-        
         {path: "/ship", element: <Ship /> },
         {path: "/bills", element: <BillsPage /> },
         {path: "/setting", element: <Ship /> },

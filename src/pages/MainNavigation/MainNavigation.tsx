@@ -75,11 +75,7 @@ const MainNavigation: React.FC = () => {
               icon: <TbTruckDelivery />,
               label: <Link to="/products">المنتجات</Link>,
             },
-            {
-              key: "/warehouse",
-              icon: <LiaWarehouseSolid />,
-              label:  <Link to="/warehouse">المخزن</Link>,
-            },
+          
             {
               key: "/ship",
               icon: <LiaWarehouseSolid />,
@@ -105,10 +101,10 @@ const MainNavigation: React.FC = () => {
               height: 64,
             }}
           />
-          {/* <img
+          <img
             style={{ alignSelf: "end", marginInlineEnd: "20px", width: "15%" }}
             src="/logo.png"
-          /> */}
+          />
         </Header>
         <Content
           style={{
