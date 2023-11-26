@@ -1,6 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose'
 
+
+
 const orderSchema = new mongoose.Schema({
+   
+
+    id : {
+        type: Number,
+        unique: true,
+        required: true,
+    } ,
     products : [
         {
             product : {
@@ -9,9 +19,7 @@ const orderSchema = new mongoose.Schema({
                 required : [true , 'لابد من توافر المنتج']
             }, 
             type : {
-                type : mongoose.Schema.Types.ObjectId ,
-                ref :  'Product.type' ,
-                 
+                type : String ,
             } ,
             quantity : {
                type : Number , 
@@ -55,9 +63,47 @@ const orderSchema = new mongoose.Schema({
     price : {
         type : Number , 
         required : [true , 'لابد من توافر سعر الطلب']  
-    }
-})
+    } , 
+    updates: [
+        {
+            
+            info: {
+                type: String,
+                required: true,
+            },
+            timestamp: {
+                type: Date,
+                default: Date.now,
+            },
+        },
+    ],
+} , {timestamps: true})
 
-const OrderModel = mongoose.model('Order' , orderSchema)
+
+
+
+
+orderSchema.pre('validate', async function (next) {
+    try {
+        if (!this.id) {
+            // Cast this.constructor to the specific type of your model
+            const Order = mongoose.model('Order');
+            // Check if the generated number is already used
+            // Retry until a unique number is generated
+           const  maxOrder  = await Order.findOne({}, { id: 1 })
+                .sort({ id: -1 })
+                .limit(1)
+                .exec();
+
+           
+            this.id = (maxOrder && maxOrder.id ? maxOrder.id : 0) + 1;
+        }
+        next();
+    } catch (error : any) {
+        next(error);
+    }
+});
+
+const OrderModel = mongoose.model('Order', orderSchema);
 
 export default OrderModel

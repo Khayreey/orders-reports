@@ -7,34 +7,29 @@ const { Header, Sider, Content } = Layout;
 import { LuSettings, LuLayoutDashboard } from "react-icons/lu";
 import { TfiShoppingCartFull } from "react-icons/tfi";
 import { TbTruckDelivery } from "react-icons/tb";
-import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
+import { MenuUnfoldOutlined, MenuFoldOutlined , HourglassOutlined , PlusCircleOutlined , ShoppingCartOutlined } from "@ant-design/icons";
 import { LiaWarehouseSolid } from "react-icons/lia";
 import { Link, Outlet, useLocation } from "react-router-dom";
-
-
-
 
 const MainNavigation: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const location = useLocation();
-    const [current, setCurrent] = useState(location.pathname);
-    //or simply use const [current, setCurrent] = useState(location.pathname)        
+  const [current, setCurrent] = useState(location.pathname);
+  //or simply use const [current, setCurrent] = useState(location.pathname)
 
-    useEffect(() => {
-        if (location) {
-            if( current !== location.pathname ) {
-                setCurrent(location.pathname);
-            }
-        }
-    }, [location, current]);
-
-    function handleClick(e: any) {
-        setCurrent(e.key);
+  useEffect(() => {
+    if (location) {
+      if (current !== location.pathname) {
+        setCurrent(location.pathname);
+      }
     }
+  }, [location, current]);
 
+  function handleClick(e: any) {
+    setCurrent(e.key);
+  }
 
-  
   return (
     <Layout style={{ direction: "rtl", minHeight: "100dvh" }}>
       <Sider
@@ -48,13 +43,8 @@ const MainNavigation: React.FC = () => {
           className={styles.menu}
           mode="inline"
           onClick={handleClick}
-          
           selectedKeys={[current]}
-        
-          
-          items=
-          {
-            [
+          items={[
             {
               key: "/",
               icon: <LuLayoutDashboard />,
@@ -63,23 +53,36 @@ const MainNavigation: React.FC = () => {
             {
               key: "/orders",
               icon: <TfiShoppingCartFull />,
-              label: <Link to="/orders">الطلبات</Link>,
+              label: 'الطلبات',
+              children : [
+                {
+                  key : '/createOrder' , 
+                  label : <Link to="/createOrder">انشاء </Link> , 
+                  icon : <PlusCircleOutlined />
+                } , 
+                {
+                  key : '/pendingOrders' , 
+                  label : <Link to="/pendingOrders"> المعلقة</Link> , 
+                  icon : <HourglassOutlined />
+                } , 
+                {
+                  key : '/runningOrders' , 
+                  label : <Link to="/runningOrders"> قيد التشغيل</Link> , 
+                  icon : <ShoppingCartOutlined />
+                }
+              ]
             },
-            {
-              key: "/bills",
-              icon: <TfiShoppingCartFull />,
-              label: <Link to="/bills">البوالص</Link>,
-            },
+           
             {
               key: "/products",
               icon: <TbTruckDelivery />,
               label: <Link to="/products">المنتجات</Link>,
             },
-          
+
             {
               key: "/ship",
               icon: <LiaWarehouseSolid />,
-              label:  <Link to="/ship">الشحن</Link>,
+              label: <Link to="/ship">الشحن</Link>,
             },
             {
               key: "/setting",
@@ -101,10 +104,10 @@ const MainNavigation: React.FC = () => {
               height: 64,
             }}
           />
-          <img
+          {/* <img
             style={{ alignSelf: "end", marginInlineEnd: "20px", width: "15%" }}
             src="/logo.png"
-          />
+          /> */}
         </Header>
         <Content
           style={{

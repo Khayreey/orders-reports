@@ -7,9 +7,9 @@ import { useEffect } from "react"
 import DispatchInterface from "../../types/DispatchInterface"
 import { deleteShip, getAllShips } from "../../store/shipSlice/shipSlice"
 import DeleteModal from "../../modals/DeleteModal/DeleteModal"
-import { DeleteOutlined } from "@ant-design/icons"
+import { DeleteOutlined , EyeOutlined } from "@ant-design/icons"
 import { ColumnsType } from "antd/es/table";
-
+import {useNavigate} from 'react-router-dom'
 interface DataType {
   id : React.Key , 
   name: string;
@@ -21,6 +21,8 @@ const Ship = () => {
   const {isWaitingForShips , ships  , isWaitingForDeleteShip , isShipsRequireRender} = useSelector((state : any)=>state.ship)
   const dispatch : DispatchInterface = useDispatch()
   
+
+  const navigate = useNavigate()
   const formattedShips = ships? ships.map(({ _id , ...state} : any)=>{
     return {...state , key : _id}
   }) : []
@@ -45,10 +47,14 @@ const Ship = () => {
       title: 'الاجرائات',
       dataIndex: '',
       key: 'x',
-      render: (e) => <a><DeleteOutlined onClick={()=> DeleteModal(e.name, isWaitingForDeleteShip ,()=>confirmDelete(e._id))}/></a> ,
+      render: (e) => <div style={{display : 'flex' , alignItems : 'center' , gap : '10px'}}>
+       <a><DeleteOutlined onClick={()=> DeleteModal(e.name, isWaitingForDeleteShip ,()=>confirmDelete(e.key))}/></a> 
+       <a><EyeOutlined onClick={()=> navigate(`/ship/${e.key}`) }/></a> 
+      </div>
     },
   ];
   const confirmDelete = (id : any)=>{
+    
     // delete function
     dispatch(deleteShip({url : 'ship'  , id : id , toastMessage : 'تم حذف  مسئول الشحن بنجاح'}))
  }  

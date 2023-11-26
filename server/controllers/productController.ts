@@ -127,7 +127,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
   // const isHaveAuth = permissions?.delete?.includes("product");
   // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لحذف منتج");
   if(!productId) throwBadRequestError('لابد من توافر المنتج المراد حذفه')
-  const product = await ProductModel.findOneAndRemove({
+  const product = await ProductModel.findOneAndDelete({
     _id: productId,
   });
   if (!product) throwNotFoundError("لا يوجدد منتج متوافق لحذفه");
@@ -151,7 +151,7 @@ export const updateTypeInProduct = async (req: Request, res: Response) => {
   if (!updatedP) {
     throwNotFoundError("لايوجد منتج لتعديله");
   }
-  if(updatedP?.type.some((e)=>e.name === name)) throwBadRequestError('هذا الاسم مستخدم من قبل')
+  if( updatedP && updatedP.type && updatedP?.type.some((e)=>e.name === name)) throwBadRequestError('هذا الاسم مستخدم من قبل')
   if (updatedP !== null && updatedP?.type) {
     const selectedOne =
       updatedP &&

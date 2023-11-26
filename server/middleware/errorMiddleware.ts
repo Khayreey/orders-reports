@@ -28,6 +28,7 @@ const errorMiddelware = (err: Error  , req: Request, res: Response , next : Next
         customError.message = `لا يوجد عنصر بهذه القيمة ${err.value}`
         customError.statusCode = 404
     }
+    
     if (err instanceof MongoServerError  && err.code === 11000) {
         customError.field = 'email'
         customError.message = `هذا البريد / الهاتف مستخدم بالفعل`

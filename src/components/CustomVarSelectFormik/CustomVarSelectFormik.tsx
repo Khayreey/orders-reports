@@ -11,7 +11,7 @@ interface InputInterface {
   label: string;
   placeholder: string;
   required?: boolean;
- 
+  isReadOnly? :boolean ; 
   name : string 
 }
 const CustomVarSelectFormik = ({
@@ -19,7 +19,7 @@ const CustomVarSelectFormik = ({
   placeholder,
   label,
   options , 
-  
+  isReadOnly , 
    name   
 }: InputInterface) => {
   const [field, meta , helpers] = useField(name);
@@ -53,6 +53,7 @@ const CustomVarSelectFormik = ({
         style={{width : '100%'}} size="large" options={options} dropdownRender={dropdownRender}
          placeholder={placeholder} 
          onChange={(e)=> helpers.setValue(e)}
+         disabled={isReadOnly}
          />
       </Form.Item>
     </>

@@ -1,30 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
-import {  Carousel } from 'antd';
-import {GrNext , GrPrevious} from 'react-icons/gr'
 import BillOfLading from '../BillOfLading/BillOfLading';
+import style from './bills.module.scss'
+const Bills = 
+React.forwardRef(({data} : any, ref : React.ForwardedRef<HTMLDivElement>) => {
+  
+  return (
+   
+    <>
+        <div  ref={ref} className={style.billContainer}>
 
-
-
-const Bills  = React.forwardRef((_ , ref : React.LegacyRef<HTMLDivElement>) => 
-{
-    const onChange = (currentSlide: number) => {
-    console.log(currentSlide);
-  };
- return (
-  <>
-    <Carousel  afterChange={onChange} arrows={true} dots={false} nextArrow={<GrNext />} prevArrow={<GrPrevious />}>
-      <div style={{display : 'block'}} ref={ref}>
-          <BillOfLading />
-          <BillOfLading />
-          <BillOfLading />
-          <BillOfLading />
-      </div>
-     
-    </Carousel>
-    
-    </>  
- )
-} )
-
+          {data && data.length > 0
+          ?
+            data.map((e :any, index : number)=>{
+                return <BillOfLading order={e} key={index}/>
+            })
+          : null
+          }
+         
+          
+        </div>  
+    </>
+  );
+});
 export default Bills;

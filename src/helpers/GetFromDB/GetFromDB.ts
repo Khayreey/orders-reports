@@ -15,12 +15,10 @@ const GetFromDB = async (information : any , thunkAPI : GetThunkAPI<any>) => {
       if (response.status === 200 || response.status === 201) {  
         return response.data.data;
       }
-      else {
-        console.log(response.data)
-      }
+     
       
     } catch (err : any) {
-      console.log(err)
+     
       const message =   err.response ? err.response.data.error : 'حاول في وقت لاحق'
       DisplayToast(message , false)
       throw rejectWithValue(message);

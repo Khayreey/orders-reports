@@ -1,17 +1,17 @@
 .main {
-  border-top  :.5px solid black;
+  border-top  :.3px solid black;
   direction: rtl;
 }
  
 .main .header h1 {
   background: black;
-  border-radius: 0.25em;
+  border-radius: 0.15em;
   color: white;
   direction: rtl;
 }
  .address {
   float: left;
-  font-size: 12px;
+  font-size: 10px;
   font-style: normal;
   display: flex;
   direction: rtl;
@@ -20,12 +20,12 @@
 }
  .address p {
   margin: 0px;
-  font-size: 12px;
-  font-weight: 900;
+  font-size: 10px;
+  font-weight: 600;
 }
-.header span, .header img { display: block; float: right; height: 100%; margin: 5px;}
-.header span { margin: 0 0 0em 0em; max-height: 25%; max-width: 60%; position: relative; }
-.header img { max-height:20%; max-width: 20%; margin-right: 5px;}
+.header span, .header img { display: block; float: right; height: 100%; margin: 3px;}
+.header span { margin: 0 0 0em 0em; max-height: 20%; max-width: 60%; position: relative; }
+.header img { max-height:20%; max-width: 20%; margin-right: 10px;}
 .header:after { clear: both; content: ""; display: table; }
 /* article */
 .article h1 { clip: rect(0 0 0 0); position: absolute; }
@@ -33,16 +33,16 @@
 .article:after { clear: both; content: ""; display: table; }
 /* .table */
 .table { font-size: 75%; table-layout: auto; width: 100%; }
-.table { border-collapse: separate; border-spacing: 2px; }
-.th, .td { border-width: 1px; padding: .2em; position: relative; text-align: right; }
-.th, .td { border-radius: 0.25em; border-style: solid; }
+.table { border-collapse: separate; border-spacing: .3px; }
+.th, .td { border-width: 1px; padding: .26em; position: relative; text-align: right; }
+.th, .td { border-radius: 0.15em; border-style: solid; }
 .th { background: rgb(241, 241, 241 ); border-color: #a1a1a1; }
-.td { border-color: #a1a1a1;background: #ffffff; font-weight: 900; }
+.td { border-color: #a1a1a1;background: #ffffff; font-weight: 500; }
 /* .table first-Table */
-.table.firstTable { float: right; width: 70%; height: 10%;}
-.table.second { float: right; width: 100%; height: 10%;}
-.table.second th {  width: 80%; height: 10%;}
-.table.second td {  float: center; display :flex ; align-items: center; justify-content: center; font-weight: 900;}
+.table.firstTable { float: right; width: 70%; height: 5%;}
+.table.second { float: right; width: 100%; height: 5%;}
+.table.second th {  width: 80%; height: 5%;}
+.table.second td {  float: center; display :flex ; align-items: center; justify-content: center; font-weight: 500;}
 /* .table firstTable */
 
 

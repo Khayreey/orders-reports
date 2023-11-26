@@ -3,7 +3,7 @@ import * as Yup from "yup";
 
 const addOrderSchema = Yup.object().shape({
   name: Yup.string()
-    .matches(/^[ء-ي\s]+$/, "اكتب اسم العميل بالعربي فقط ")
+    
     .min(3, "هذا الاسم صغير")
     .max(50, "السم كبير")
     .required("السم مطلوب"),
@@ -35,22 +35,23 @@ const addOrderSchema = Yup.object().shape({
       );
     }),
    address : Yup.string()
-   .matches(/^[ء-ي\s]+$/, "اكتب العنوان باللغة العربية فقط")
+   
    .min(8, "هذا العنوان صغير")
    .required("لابد ان تكتب العنوان التفصيلي"),
    details :   Yup.string()
-   .matches(/^[ء-ي\s]+$/, "اكتب التفاصيل باللغة العربية ققط ")
-   .required("السم مطلوب"),
+   .matches(/^[ء-ي\s]+$/, "اكتب التفاصيل باللغة العربية ققط ").optional() ,
+   
    city :   Yup.array()
    .required("لابد ان تختار المحافظة والمدينة"), 
    ship : Yup.array()
-   .required("لابد ان تختار المحافظة والمدينة"),  
+   .required("لابد ان تختار مسئول الشحن"),  
+   status : Yup.array().optional()
 });
 
 export const yupSync = {
     async validator({ field  }: any, value: any) {
       await addOrderSchema.validateSyncAt(field, { [field]: value });
     },
-  };
+};
 
 export default addOrderSchema;

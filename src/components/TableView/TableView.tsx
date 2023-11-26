@@ -13,7 +13,6 @@ import { saveAs } from "file-saver";
 interface DataType {
   key: string;
   name: string;
-
   address: string;
   order_date: string;
   price: string;

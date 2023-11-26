@@ -24,16 +24,17 @@ const AddNewOrder = () => {
   const [isFormSubmit , setIsFormSubmit] = useState(false)
   const dispatch : DispatchInterface = useDispatch()
   const {  productsDB   } = useSelector((state : any)=>state.product)
+  const {isWaitingForAddOrder} = useSelector(( state : any)=>state.order)
   useEffect(()=>{
     dispatch(getAllProducts({url : 'product'}))
-} , [dispatch ])
+} , [dispatch , isFormSubmit])
 const {  ships  } = useSelector((state : any)=>state.ship)
 
 const [formattedProducts , setFormattedProducts] : any = useState([])
 const [formattedShips , setFormattedShips] = useState([])
 useEffect(()=>{
   dispatch(getAllShips({url : 'ship'}))
-} , [ dispatch , isFormSubmit])
+} , [ dispatch])
 
 useEffect(()=>{
   if(!ships || ships.length ===0) return 
@@ -48,7 +49,7 @@ if(!productsDB || productsDB.length < 0) return
 const cloneProduct = productsDB && productsDB.length > 0 ? 
 productsDB.map(({_id , type , name , quantity} : any)=>{
   if(type.length === 0) {
-    if(quantity === 0) {
+    if(quantity === 0 || quantity === '0') {
       return {value : _id , label : `${name}  متاح "${quantity}"` , disabled : true}
     } else {
       return {value : _id , label : `${name}  متاح "${quantity}"` , disabled : false}
@@ -58,7 +59,7 @@ productsDB.map(({_id , type , name , quantity} : any)=>{
   else {
     
     return {value : _id , label : name , children : type.map(({_id , name , quantity} : any)=>{
-      if(quantity === 0) {
+      if(quantity === 0 || quantity === '0') {
         
         return {value : _id , label : `${name}  متاح "${quantity}"` , disabled : true}
       }
@@ -131,7 +132,7 @@ useEffect(() => {
 
  
   return (
-    <MainContainer title="اضافة طلب جديد" isCollapse={true}>
+    <MainContainer title="اضافة طلب جديد" >
       <Formik   
         initialValues={{
           name: "",
@@ -144,11 +145,11 @@ useEffect(() => {
           ship: [null],
         }}
         onSubmit={(values , helpers) => {
-          console.log(products , values);
+          
           const chosenProducts = products.filter((e)=>e.value[0] !== '')
           const formattedChosen = chosenProducts.map((e)=>{
             if(e.value.length === 2) {
-              return {product : e.value[0] , typeId : e.value[1] , quantity : e.quantity}
+              return {product : e.value[0] , type : e.value[1] , quantity : e.quantity}
             }
             else {
               return {product : e.value[0] , quantity : e.quantity}
@@ -166,6 +167,7 @@ useEffect(() => {
               setIsFormSubmit((e)=>{
                 return !e
               })
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }  ,
              toastMessage : 'تم اضافة الطلب بنجاح' ,
              data : {shipId : values.ship ? values.ship[0] : "" ,
@@ -272,8 +274,8 @@ options={formattedProducts}
               <CustomInput
                 Icon={<AiOutlinePhone />}
                 isTextArea={true}
-                label="العنوان التفصيلي"
-                placeholder="قم بكتابة العنوان التفصيلي "
+                label="ملاجظات"
+                placeholder="ملاحظات لمسئول الشحن"
                 name="details"
                 required={false}
                 validation={yupSync}
@@ -282,7 +284,8 @@ options={formattedProducts}
                 type="primary"
                 htmlType="submit"
                 style={{ width: "100%", marginTop: "1rem" }}
-                disabled={!isValid || !isFormValid}
+                disabled={!isValid || !isFormValid || isWaitingForAddOrder}
+                loading={isWaitingForAddOrder}
               >
                 سجل الطلب
               </Button>

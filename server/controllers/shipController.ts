@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
-import throwForbiddnError from "../errors/ForbiddnError";
 import ShipModel from "../models/shipModel";
 import throwNotFoundError from "../errors/NotFoundError";
 import throwBadRequestError from "../errors/BadRequestError";
+import OrderModel from "../models/orderModel";
 export const createNewShip = async (req: Request, res: Response) => {
   const { name, phone } = req.body;
   // const { permissions } = req.user;
@@ -15,6 +16,7 @@ export const createNewShip = async (req: Request, res: Response) => {
   const newShip = await ShipModel.create({ name: name, phone: phone });
   res.status(201).json({ data: newShip });
 };
+
 export const getAllShips = async (req: Request, res: Response) => {
   // const { permissions } = req.user;
   // const isHaveAuth = permissions.view.includes("ship");
@@ -22,6 +24,44 @@ export const getAllShips = async (req: Request, res: Response) => {
   const allShips = await ShipModel.find({});
   res.status(200).json({ data: allShips });
 };
+
+export const getSingleShip = async(req : Request , res : Response)=>{
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.view.includes("ship");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لتصفح المنتجات");
+
+  const singleShip = await ShipModel.findOne({_id : req.params.id});
+  if(!singleShip) throwNotFoundError('لا  يوجد مسئول شحن متوافق')
+  
+  const pendingOrders = await OrderModel.find({ shipId: req.params.id , 
+    $or: [{ status: 'قيد التشغيل' }, { status: 'معلق' }]  }).populate('products.product').populate('shipId').sort({ updatedAt: -1 });
+  
+  // Manually select the desired type based on products.type
+  const processedOrders = pendingOrders.map((order : any)=> ({
+    _id: order._id,
+    id : order.id , 
+    status: order.status,
+    price : order.price , 
+    name : order.name , 
+    phone : order.phone , 
+    anotherPhone : order.anotherPhone ,
+    address : order.address , 
+    country : order.country , 
+    notes : order.notes ,
+    ship : order.shipId , 
+    products: order.products.map((product : any) => ({
+      product: {
+        _id: (product.product as any)._id, // Cast to any to access _id
+        name: (product.product as any).name,
+        quantity: product.quantity,
+        type: (product.product as any).type.find((type: any) => type._id.toString() === product.type) // Manual selection
+      },
+      // ... other fields
+    })),
+  }));
+  
+  res.status(200).json({ data:{ ship :singleShip , orders : processedOrders} });
+}
 export const updateShip = async (req: Request, res: Response) => {
   const {
     // user: { permissions },
@@ -48,7 +88,7 @@ export const deleteShip = async (req: Request, res: Response) => {
   } = req;
   // const isHaveAuth = permissions?.delete?.includes("ship");
   // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لحذف مسئول شحن");
-  const ship = await ShipModel.findOneAndRemove({
+  const ship = await ShipModel.findOneAndDelete({
     _id: shipId,
   });
   if (!ship) throwNotFoundError("لا يوجدد مسئول شحن متوافق لحذفه");

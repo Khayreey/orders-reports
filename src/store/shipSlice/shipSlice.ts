@@ -37,6 +37,14 @@ export const createNewShip = createAsyncThunk(
     }
 );
 
+
+export const getSingleShip = createAsyncThunk('ship/getOne' , 
+
+async (information : any , thunkAPI)=>{
+   return GetFromDB(information , thunkAPI)
+}
+
+)
  const initialState = {
    ships : [] , 
    isWaitingForShips : false , 
@@ -46,7 +54,9 @@ export const createNewShip = createAsyncThunk(
    isWaitingForAddShip : false , 
    isWaitingForDeleteShip : false , 
    isWaitingForUpdateShip : false , 
-   isErrorInUpdateShip : false
+   isErrorInUpdateShip : false , 
+   ship : {} , 
+   isWaitingForGetShip : false 
 }
 const shipSlice = createSlice({
    name : 'ship' , 
@@ -116,7 +126,20 @@ const shipSlice = createSlice({
       state.isErrorInUpdateShip = true
     })
    //end of update
- }
+   
+   builder.addCase(getSingleShip.pending , (state )=>{
+      state.isWaitingForGetShip = true
+     
+     })
+     builder.addCase(getSingleShip.fulfilled , (state , action)=>{
+      state.isWaitingForGetShip = false
+      state.ship = action.payload 
+     })
+     builder.addCase(getSingleShip.rejected , (state )=>{
+      state.isWaitingForGetShip = false
+      
+    })
+}
 })
 export default shipSlice
 export const shipActions = shipSlice.actions

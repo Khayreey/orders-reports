@@ -17,8 +17,10 @@ const AddToDB = async (information : any , thunkAPI : GetThunkAPI<any>) => {
       })
       if (response.status === 200 || response.status === 201) {  
         DisplayToast(toastMessage, true)
-        clearForm()
-        return response.data.data;
+        if(clearForm) {
+          clearForm()
+        }
+        return response;
       }
     } catch (err : any) {
       

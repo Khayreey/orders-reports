@@ -5,11 +5,11 @@ import AxiosInstance from "../AxiosInstance/AxiosInstance";
 import DisplayToast from "../DisplayToast/DisplayToast";
 
 const UpdateDB = async (information : any , thunkAPI : GetThunkAPI<any>) => {
-    const {   url , data  , token  , toastMessage } = information;
+    const {   url , data  , token  , toastMessage  , clear} = information;
     const {  rejectWithValue } = thunkAPI;
     console.log(token)
     try {
-      const response = await AxiosInstance.patch(url , data ,  {
+      const response = await AxiosInstance.patch(url , {...data} ,  {
         // headers :  {
         //   Authorization: "Bearer " + token,
         // } 
@@ -17,13 +17,16 @@ const UpdateDB = async (information : any , thunkAPI : GetThunkAPI<any>) => {
       if (response.status === 200 || response.status === 201) {  
         
         DisplayToast(toastMessage , true)
+        if(clear) {
+          clear()
+        }
         return true;
       } 
-      throw new Error(response.data.message);
+      
     } catch (err : any) {
-        const message =   err.response.data.message ? err.response.data.message : 'حاول في وقت لاحق'
-        DisplayToast(message , false)
-        throw rejectWithValue(message);
+      const message =   err.response ? err.response.data.error : 'حاول في وقت لاحق'
+      DisplayToast(message , false)
+      throw rejectWithValue(message);
     }
 };
 

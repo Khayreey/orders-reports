@@ -2,7 +2,7 @@
 import { Col, FloatButton, Row, Form, Input } from "antd";
 import CustomInputNumber from "../CustomInputNumber/CustomInputNumber";
 import { MdFormatListNumberedRtl } from "react-icons/md";
-import { MinusOutlined } from "@ant-design/icons";
+import {  MinusOutlined } from "@ant-design/icons";
 import CustomVarSelect from "../CustomVarSelect/CustomVarSelect";
 
 interface ProductInputInterface {
@@ -17,6 +17,8 @@ interface ProductInputInterface {
   label?: string;
   product: any;
   options?: any;
+  isReadOnly? :  boolean , 
+  isProductDisable? : boolean
 }
 
 const ProductInput = ({
@@ -31,6 +33,8 @@ const ProductInput = ({
   label,
   product,
   options,
+  isReadOnly , 
+  isProductDisable
 }: ProductInputInterface) => {
   const addProduct = (value: any) => {
     const newProducts = [...products];
@@ -40,7 +44,6 @@ const ProductInput = ({
 
     setProducts(newProducts);
   };
-
   return (
     <Row
       style={{
@@ -69,6 +72,7 @@ const ProductInput = ({
               placeholder={placeholder}
               prefix={Icon}
               onChange={(e) => addProduct(e.target.value)}
+
             />
           </Form.Item>
         ) : (
@@ -80,6 +84,8 @@ const ProductInput = ({
             id={id}
             setProducts={setProducts}
             products={products}
+            isReadOnly={isReadOnly}
+            isProductDisable={isProductDisable}
           />
         )}
       </Col>
@@ -91,22 +97,23 @@ const ProductInput = ({
           setProducts={setProducts}
           products={products}
           id={id}
+          isReadOnly={isReadOnly}
           product={product}
         />
       </Col>
-      {!isFirst ? (
+      {!isFirst  ? (
         <FloatButton
           onClick={deleteProductInput ? () => deleteProductInput(id) : () => {}}
           type="primary"
           icon={<MinusOutlined />}
           style={{
             position: "relative",
-            top: "0px",
-            left: "10px",
-            alignSelf: "center",
+            top: "12px",
+            left: "5px",
           }}
           tooltip={<div>طرح منتج</div>}
         />
+        //<MinusCircleOutlined onClick={deleteProductInput ? () => deleteProductInput(id) : () => {}} />
       ) : null}
     </Row>
   );

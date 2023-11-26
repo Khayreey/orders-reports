@@ -3,35 +3,30 @@ import { Request, Response } from "express";
 import throwBadRequestError from "../errors/BadRequestError";
 import OrderModel from "../models/orderModel";
 import ProductModel from "../models/productModel";
-// import { Types } from "mongoose";
 import throwNotFoundError from "../errors/NotFoundError";
-
 interface ProductInterface {
   product: string;
   quantity: number;
   type?: string;
 }
-
-
 export const createNewOrder = async (req: Request, res: Response) => {
   try {
-    const { products, shipId, address, country , name , phone , price } = req.body;
+    const { products, shipId, address, country, name, phone, price } = req.body;
 
     if (!products || products.length === 0) {
       throwBadRequestError("لابد من توافر المنتجات");
     }
 
     // Check if all products exist
-    const productIds = products.map((e: ProductInterface) => e.product);
+    const productIds: any = products.map((e: ProductInterface) => e.product);
     const isProductsExist = await ProductModel.find({
       _id: { $in: productIds },
     });
 
-    if (isProductsExist.length !== productIds.length) {
+    if (isProductsExist.length === 0 || !isProductsExist)
       throwBadRequestError("يوجد منتجات غير موجودة");
-    }
 
-    let isError = '';
+    let isError = "";
 
     // Use Promise.all to handle async operations
     await Promise.all(
@@ -39,60 +34,64 @@ export const createNewOrder = async (req: Request, res: Response) => {
         const product = await ProductModel.findOne({ _id: e.product });
         if (!product) {
           isError = `يوجد منتج غير متاح`;
-        }
-         else if (product.type.length !== 0) {
-        
+        } else if (product?.type?.length !== 0) {
           if (!e.type) {
             isError = `لا بد من توافر النوع "${product.name}"`;
-          } 
-          else {
-            const isTypeExist = await ProductModel.exists({  
+          } else {
+            const isTypeExist = await ProductModel.findOne({
+              _id: e.product,
               "type._id": e.type,
             });
-            console.log(isTypeExist)
+
             if (!isTypeExist) {
-              isError = `لا  النوع "${product.name}"`;
+              isError = `يوجد نوع غير متوافر في "${product.name}"`;
+            } else {
+              const isQuantityOfTypeAvaliable = isTypeExist?.type?.find(
+                (item) => item._id.toString() == e.type
+              );
+              if (
+                isQuantityOfTypeAvaliable &&
+                isQuantityOfTypeAvaliable.quantity - e.quantity < 0
+              ) {
+                isError = `كمية ال ${isQuantityOfTypeAvaliable.name} غير متاحة متاح فقط ${isQuantityOfTypeAvaliable.quantity}`;
+              }
             }
           }
-        }
-        else {
-          if(e.type) {
+        } else {
+          if (e.type) {
             isError = `${product.name} لا يحتوي علي انواع داخلية`;
           }
-          console.log(e , product)
-          if(product.quantity  - (e.quantity) < 0)
-          {
-            isError =  `الكمية المطلوبة ل ${product.name} غير متاحة متاح فقط ${product.quantity}`
-          } 
-        } 
+          console.log(e, product);
+          if (product.quantity - e.quantity < 0) {
+            isError = `الكمية المطلوبة ل ${product.name} غير متاحة متاح فقط ${product.quantity}`;
+          }
+        }
       })
     );
 
-    if (isError !== '') {
+    if (isError !== "") {
       throwBadRequestError(isError);
     }
-   
-    if (!name) throwBadRequestError('لابد من توافر اسم العميل')
-    if (!phone) throwBadRequestError("لابد من توافر رقم العميل")
-    if (!price) throwBadRequestError("لابد من توافر سعر الطلب")
+
+    if (!name) throwBadRequestError("لابد من توافر اسم العميل");
+    if (!phone) throwBadRequestError("لابد من توافر رقم العميل");
+    if (!price) throwBadRequestError("لابد من توافر سعر الطلب");
     if (!country) throwBadRequestError("لابد من اختيار المحافظة / المركز");
     if (!address) throwBadRequestError("لابد من توافر العنوان التفصيلي");
     if (!shipId) throwBadRequestError("لابد من توافر مسئول الشحن");
     // all incoming data is right itis time to remove the quantity
-   
 
     const data = { ...req.body, status: "معلق" };
     const newOrder = await OrderModel.create(data);
 
-    let isErrorInQuantity = ''
+    let isErrorInQuantity = "";
     await Promise.all(
       products.map(async (e: ProductInterface) => {
         const product = await ProductModel.findOne({ _id: e.product });
-         if(!product) {
-          isErrorInQuantity = 'fdfdfdfdfd'
-         }
-         else {
-          if(product?.type.length > 0) {
+        if (!product) {
+          isErrorInQuantity = "لابد من توافر المنتج";
+        } else {
+          if (product.type && product?.type?.length > 0) {
             await ProductModel.findOneAndUpdate(
               { _id: e.product, "type._id": e.type },
               {
@@ -100,52 +99,642 @@ export const createNewOrder = async (req: Request, res: Response) => {
               },
               { new: true, runValidators: true }
             );
-          }
-          else {
+          } else {
             await ProductModel.findOneAndUpdate(
               { _id: e.product },
-              { 
-                $inc: {  quantity: -e.quantity },
+              {
+                $inc: { quantity: -e.quantity },
               },
               { new: true, runValidators: true }
             );
           }
-         }
-      
+        }
       })
     );
-    console.log(isErrorInQuantity)
-   
+    console.log(isErrorInQuantity);
 
-   
     res.status(201).json({ data: newOrder });
-  } catch (error : any) {
+  } catch (error: any) {
     // Handle errors here, e.g., return a 400 response with the error message.
     res.status(400).json({ error: error.message });
   }
 };
+export const getAllPendingOrders = async (req: Request, res: Response) => {
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.view.includes("order");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لتصفح الطلبات");
 
+  const pendingOrders = await OrderModel.find({ status: "معلق" })
+    .populate("products.product")
+    .populate("shipId")
+    .sort({ updatedAt: -1 });
+
+  // Manually select the desired type based on products.type
+  const processedOrders = pendingOrders.map((order) => ({
+    _id: order._id,
+    id: order.id,
+    status: order.status,
+    price: order.price,
+    name: order.name,
+    phone: order.phone,
+    anotherPhone: order.anotherPhone,
+    address: order.address,
+    country: order.country,
+    notes: order.notes,
+    ship: order.shipId,
+    products: order.products.map((product) => ({
+      product: {
+        _id: (product.product as any)._id, // Cast to any to access _id
+        name: (product.product as any).name,
+        quantity: product.quantity,
+        type: (product.product as any).type.find(
+          (type: any) => type._id.toString() === product.type
+        ), // Manual selection
+      },
+      // ... other fields
+    })),
+  }));
+
+  res.status(200).json({ data: processedOrders });
+};
+
+export const getAllRunningOrders = async (req: Request, res: Response) => {
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.view.includes("order");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لتصفح الطلبات");
+
+  const runningOrders = await OrderModel.find({ status: "قيد التشغيل" })
+    .populate("products.product")
+    .populate("shipId")
+    .sort({ updatedAt: -1 });
+
+  // Manually select the desired type based on products.type
+  const processedOrders = runningOrders.map((order) => ({
+    _id: order._id,
+    id: order.id,
+    status: order.status,
+    price: order.price,
+    name: order.name,
+    phone: order.phone,
+    anotherPhone: order.anotherPhone,
+    address: order.address,
+    country: order.country,
+    notes: order.notes,
+    ship: order.shipId,
+    products: order.products.map((product) => ({
+      product: {
+        _id: (product.product as any)._id, // Cast to any to access _id
+        name: (product.product as any).name,
+        quantity: product.quantity,
+        type: (product.product as any).type.find(
+          (type: any) => type._id.toString() === product.type
+        ), // Manual selection
+      },
+      // ... other fields
+    })),
+  }));
+
+  res.status(200).json({ data: processedOrders });
+};
 
 export const getAllOrders = async (req: Request, res: Response) => {
   console.log(req, res);
 };
-
-export const updateOrder = async (req: Request, res: Response) => {
+export const deleteOrder = async (req: Request, res: Response) => {
   const {
     // user: { permissions },
     params: { id: orderId },
-    body: {  product  , shipId},
   } = req;
-  // const isHaveAuth = permissions.update.includes("ship");
-  // if (!isHaveAuth || !permissions)
-  //   throwForbiddnError("ليس لديك الصلاحية لتعديل مسئول شحن");
-  if (!shipId && !product)
-    throwBadRequestError("لابد من ادخال البيانات المراد تعديلها");
+  // const isHaveAuth = permissions?.delete?.includes("ship");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لحذف مسئول شحن");
+  const order: any = await OrderModel.findOneAndDelete({
+    _id: orderId,
+    status: "معلق",
+  });
+
+  if (!order) {
+    throwNotFoundError("الطلب غير موجود أو لا يمكن حذفه");
+  }
+
+  // Retrieve the products from the order
+  if (order && order.products) {
+    const products = order.products || [];
+    for (const product of products) {
+      const existingProduct = await ProductModel.findById(product.product);
+
+      if (existingProduct) {
+        existingProduct.quantity += product.quantity;
+
+        if (product.type) {
+          // Check if the product has types
+          if (existingProduct.type && existingProduct.type.length > 0) {
+            const productTypeIndex = existingProduct.type.findIndex((t: any) =>
+              t.equals(product.type)
+            );
+
+            if (
+              productTypeIndex !== -1 &&
+              existingProduct.type &&
+              existingProduct.type[productTypeIndex]
+            ) {
+              existingProduct.type[productTypeIndex].quantity +=
+                product.quantity;
+            } else {
+              const errorMessage = ` خطأ في تحديث كمية نوع المنتج: ${product.type}`;
+              console.error(errorMessage);
+              throwBadRequestError(errorMessage);
+            }
+          }
+        }
+
+        await existingProduct.save();
+      }
+    }
+  }
+  res.status(200).json({ data: order });
+};
+export const updateOrder = async (req: Request, res: Response) => {
+  const {
+    params: { id: orderId },
+  } = req;
+  const existingOrder = await OrderModel.findById(orderId);
+  if (!existingOrder) {
+    throwNotFoundError("لايوجد طلب متوافق");
+  }
+  if (existingOrder && existingOrder.status !== "معلق") {
+    throwBadRequestError("هذا الطلب خرج بالفعل لا يمكن تعديله");
+  }
+  if (
+    req.body &&
+    req.body.status !== "قيد التشغيل" &&
+    req.body.status !== "معلق"
+  ) {
+    throwBadRequestError(
+      "لا يمكن التغير في تعديل الطلب بالمنتجات بحالة غير قيد التشغيل"
+    );
+  }
+  const productDetails = req.body.products;
+
+  if (!productDetails || productDetails.length === 0) {
+    throwBadRequestError("لابد من توافر المنتجات");
+  }
+
+  if (existingOrder && existingOrder.products) {
+    for (const existingProduct of existingOrder.products) {
+      const matchingProductIndex = productDetails.findIndex(
+        (orderProduct: any) =>
+          existingProduct.product.equals(orderProduct.product) &&
+          (!orderProduct.type ||
+            hasMatchingType(existingProduct.type, orderProduct.type))
+      );
+      if (matchingProductIndex === -1) {
+        await handleRemovedProduct(existingProduct);
+        existingOrder.products = existingOrder.products.filter(
+          (p) => !p.product.equals(existingProduct.product)
+        );
+      } else {
+        const existingQuantity = existingProduct.quantity || 0;
+        const newQuantity = productDetails[matchingProductIndex].quantity || 0;
+
+        // Update the product quantity in the database if it's different
+        if (existingQuantity !== newQuantity) {
+          const quantityDifference = existingQuantity - newQuantity;
+          console.log(quantityDifference);
+          const isQuantityAvailable = await updateProductQuantity(
+            existingProduct.product,
+            existingProduct.type,
+            quantityDifference
+          );
+
+          if (isQuantityAvailable) {
+            // Update product quantity in the order
+            existingProduct.quantity = newQuantity;
+          } else {
+            // Handle the case where the quantity is not available
+            // This could involve returning an error or notifying the user
+            throwBadRequestError(`الكمية غير متاحة ل ${existingProduct.type}`);
+          }
+
+          // Update product in the database
+        }
+      }
+    }
+  }
+
+  for (const orderProduct of productDetails) {
+    const existingProductIndex = existingOrder?.products?.findIndex(
+      (p) =>
+        p.product.equals(orderProduct.product) &&
+        (!orderProduct.type || hasMatchingType(p.type, orderProduct.type))
+    );
+
+    if (existingProductIndex !== -1) {
+      updateExistingProduct(
+        existingOrder?.products[Number(existingProductIndex)],
+        orderProduct
+      );
+    } else {
+      await handleNewProduct(orderProduct, existingOrder);
+    }
+  }
+
+  // Update the order
   const updatedOrder = await OrderModel.findOneAndUpdate(
     { _id: orderId },
-    req.body,
+    {
+      $set: {
+        ...req.body,
+        products: existingOrder?.products,
+      },
+    },
     { new: true, runValidators: true }
   );
-  if (!updatedOrder) throwNotFoundError("لا يوجدد مسئول شحن  لتعديله");
-  res.status(200).json({ data: updatedOrder });
+
+  if (updatedOrder) {
+    updatedOrder.updates.push({
+      info: "Manually updated",
+      timestamp: new Date(),
+    });
+    await updatedOrder.save();
+    return res.json({ data: updatedOrder });
+  } else {
+    throwBadRequestError("خطأ في تعديل المنتجات في الاوردر");
+  }
 };
+async function handleRemovedProduct(existingProduct: any) {
+  const removedProduct: any = await ProductModel.findById(
+    existingProduct.product
+  );
+
+  if (removedProduct) {
+    removedProduct.quantity += existingProduct.quantity;
+
+    if (existingProduct.type) {
+      const productTypeIndex = removedProduct?.type?.findIndex((t: any) =>
+        t.equals(existingProduct.type)
+      );
+
+      if (productTypeIndex !== -1) {
+        if (
+          removedProduct &&
+          removedProduct?.type &&
+          removedProduct.type[productTypeIndex]
+        ) {
+          removedProduct.type[productTypeIndex].quantity +=
+            existingProduct.quantity;
+        } else {
+          throwBadRequestError("خطا ف بعض انواع المنتجات");
+        }
+      }
+    }
+
+    await removedProduct.save();
+  }
+}
+function updateExistingProduct(existingProduct: any, orderProduct: any) {
+  if (orderProduct.type) {
+    existingProduct.type = orderProduct.type;
+  }
+  if (orderProduct.quantity) {
+    existingProduct.quantity = orderProduct.quantity;
+  }
+}
+async function handleNewProduct(orderProduct: any, existingOrder: any) {
+  const newProduct = await ProductModel.findById(orderProduct.product);
+
+  if (newProduct) {
+    const remainingQuantity = newProduct.quantity - orderProduct.quantity;
+
+    if (remainingQuantity >= 0) {
+      newProduct.quantity = remainingQuantity;
+
+      if (orderProduct.type && newProduct.type) {
+        const productTypeIndex = newProduct.type.findIndex((t: any) =>
+          t.equals(orderProduct.type)
+        );
+
+        if (productTypeIndex !== -1) {
+          const remainingTypeQuantity =
+            newProduct.type[productTypeIndex].quantity - orderProduct.quantity;
+
+          if (remainingTypeQuantity >= 0) {
+            newProduct.type[productTypeIndex].quantity = remainingTypeQuantity;
+          } else {
+            console.error("Error: Negative type quantity");
+            throwBadRequestError("Negative type quantity");
+          }
+        }
+      }
+
+      await newProduct.save();
+      existingOrder?.products?.push({
+        product: newProduct._id,
+        type: orderProduct.type,
+        quantity: orderProduct.quantity,
+      });
+    } else {
+      throwBadRequestError("الكمية غير متاحة لبعض المنتجات");
+    }
+  }
+}
+function hasMatchingType(typesArray: any, targetType: any) {
+  return typesArray && typesArray.includes(targetType);
+}
+
+export const updateOrderStatus = async (req: Request, res: Response) => {
+  const {
+    params: { id: orderId },
+  } = req;
+  const newStatus = req.body.status;
+
+  // Find the order by ID
+  const existingOrder = await OrderModel.findById(orderId);
+  const { acceptedProducts } = req.body;
+  if (!existingOrder) {
+    throwNotFoundError("لا يوجد طلب متطابق");
+  } else {
+    // Check the new status and perform the necessary operations
+    switch (newStatus) {
+      case "مرتجع":
+        // If the new status is 'مرتجع', update product quantities in the database
+        for (const product of existingOrder.products) {
+          const dbProduct = await ProductModel.findById(product.product);
+          if (dbProduct) {
+            // Update the product quantity in the database
+            dbProduct.quantity += product.quantity;
+
+            // Update the product type quantity if applicable
+            if (product.type && dbProduct.type && dbProduct.type.length > 0) {
+              const productTypeIndex = dbProduct.type.findIndex((t) =>
+                t.equals(product.type)
+              );
+
+              if (productTypeIndex !== -1) {
+                // Ensure the type index is valid before updating the quantity
+                dbProduct.type[productTypeIndex].quantity += product.quantity;
+              } else {
+                // If the type is not found, you might want to handle this case according to your requirements
+                console.error(
+                  `Type ${product.type} not found for product ${dbProduct._id}`
+                );
+                // Handle the case where the type is not found
+                // You might want to throw an error or handle it according to your requirements
+              }
+            }
+
+            // Save the changes to the product
+            await dbProduct.save();
+          }
+        }
+
+        break;
+      case "تسليم جزئي":
+        if (!acceptedProducts) {
+          throwBadRequestError("لابد من توافر المنتجات التي وصلت للعميل");
+        } else {
+          // Iterate over each accepted product and update its quantity in the order
+          for (const acceptedProduct of acceptedProducts) {
+            const orderProduct: any = existingOrder.products.find((product) =>
+              product.product.equals(acceptedProduct.product)
+            );
+
+            if (orderProduct) {
+              // Validate that the accepted quantity is within the available quantity
+              if (acceptedProduct.quantity <= orderProduct.quantity) {
+                // Calculate the remaining quantity in the orderProduct
+                const remainingQuantity =
+                  orderProduct.quantity - acceptedProduct.quantity;
+
+                // Set the orderProduct quantity to the accepted quantity
+                orderProduct.quantity = acceptedProduct.quantity;
+
+                // Save the changes to the orderProduct
+                await existingOrder.save();
+
+                // Find the corresponding dbProduct
+                const dbProduct = await ProductModel.findById(
+                  orderProduct.product
+                );
+
+                if (dbProduct) {
+                  // Validate that the accepted quantity is within the available quantity
+                  if (acceptedProduct.quantity <= dbProduct.quantity) {
+                    // Add the remaining quantity to the dbProduct
+                    dbProduct.quantity += remainingQuantity;
+
+                    // If the acceptedProduct has a type, update the type quantity in the dbProduct
+                    if (acceptedProduct.type && dbProduct.type) {
+                      const productTypeIndex = dbProduct.type.findIndex((t) =>
+                        t.equals(acceptedProduct.type)
+                      );
+                      if (productTypeIndex !== -1) {
+                        // Add the remaining quantity to the type quantity in the dbProduct
+                        dbProduct.type[productTypeIndex].quantity +=
+                          remainingQuantity;
+                      }
+                    }
+
+                    // Save the changes to the dbProduct
+                    await dbProduct.save();
+                  } else {
+                    // Handle the case where the accepted quantity exceeds the available quantity
+                    throwBadRequestError(
+                      "الكمية المكتوبة اكبر من الكمية المحددة في الطلب"
+                    );
+                  }
+                }
+              } else {
+                // Handle the case where the accepted quantity exceeds the available quantity in orderProduct
+                throwBadRequestError(
+                  "الكمية المكتوبة اكبر من الكمية المحددة في الطلب"
+                );
+              }
+            }
+          }
+
+          // Iterate over each product in the existing order
+          for (const orderProduct of existingOrder.products) {
+            // Check if the product is not present in acceptedProducts
+            const remainingProduct = acceptedProducts.find(
+              (acceptedProduct: any) =>
+                orderProduct.product.equals(acceptedProduct.product)
+            );
+
+            if (!remainingProduct) {
+              // If the product is not in acceptedProducts, calculate the remaining quantity
+              const remainingQuantity = orderProduct.quantity;
+
+              // Set the orderProduct quantity to 0
+              orderProduct.quantity = 0;
+
+              // Find the corresponding dbProduct
+              const dbProduct = await ProductModel.findById(
+                orderProduct.product
+              );
+
+              if (dbProduct) {
+                // Add the remaining quantity to the dbProduct
+                dbProduct.quantity += remainingQuantity;
+
+                // If the orderProduct has a type, update the type quantity in the dbProduct
+                if (orderProduct.type && dbProduct.type) {
+                  const productTypeIndex = dbProduct.type.findIndex((t) =>
+                    t.equals(orderProduct.type)
+                  );
+                  if (productTypeIndex !== -1) {
+                    // Add the remaining quantity to the type quantity in the dbProduct
+                    dbProduct.type[productTypeIndex].quantity +=
+                      remainingQuantity;
+                  }
+                }
+
+                // Save the changes to the dbProduct
+                await dbProduct.save();
+              }
+            }
+          }
+        }
+        break;
+
+      default:
+        // For other statuses, no specific operations are needed
+        break;
+    }
+
+    // Update the status in the order
+
+    if (newStatus === "تسليم جزئي") {
+      if (!req.body.price) throwBadRequestError("لابد من توافر السعر الجديد");
+
+      if (req.body.notes) {
+        existingOrder.notes = req.body.notes;
+        existingOrder.price = req.body.price;
+      } else {
+        existingOrder.price = req.body.price;
+      }
+    }
+
+    existingOrder.status = newStatus;
+
+    // Save the changes to the order
+    await existingOrder.save();
+
+    return res.status(200).json({ data: existingOrder });
+  }
+};
+async function updateProductQuantity(
+  productId: any,
+  typeId: string | null | undefined,
+  quantityDifference: number
+): Promise<boolean> {
+  try {
+    // Assuming ProductModel.findById is a method provided by your MongoDB model
+    const product = await ProductModel.findById(productId);
+
+    if (!product) {
+      // Product not found
+      return false;
+    }
+
+    // Check if the updated quantity will be non-negative
+    if (product.quantity + quantityDifference < 0) {
+      // Quantity not available
+      return false;
+    }
+
+    if (product.type && product.type.length > 0) {
+      const typeIndex =
+        product.type &&
+        product.type.findIndex((type: any) => type._id.equals(typeId));
+
+      if (typeIndex === -1) {
+        // Type not found
+        return false;
+      }
+
+      // Check if the quantity is available for the specific type
+      if (product.type[typeIndex].quantity + quantityDifference < 0) {
+        // Quantity not available for the type
+        console.log("here", product.type[typeIndex].quantity);
+        console.log("difference", quantityDifference);
+        return false;
+      }
+
+      // Update quantity for the specific type
+      await ProductModel.updateOne(
+        { _id: productId, "type._id": typeId },
+        {
+          $inc: {
+            "type.$.quantity": quantityDifference,
+            quantity: quantityDifference,
+          },
+        }
+      );
+    } else {
+      await ProductModel.findByIdAndUpdate(productId, {
+        $inc: { quantity: quantityDifference },
+      });
+    }
+
+    //Update quantity for the product
+
+    // If there is a type ID, update quantity for the specific type
+
+    return true;
+  } catch (error) {
+    console.error("Error updating product quantity:", error);
+    return false;
+  }
+}
+
+export const runOrders = async (req: Request, res: Response) => {
+  if (!req.body.orders) throwBadRequestError("لابد من توافر الطلبات لتشغيلها");
+
+  const ordersToUpdate = await OrderModel.find({
+    _id: { $in: req.body.orders },
+    status: "معلق",
+  });
+
+  if (ordersToUpdate.length !== req.body.orders.length)
+    throwBadRequestError("ليس كل هذه الطلبات معلقة");
+  // Update the orders
+  const updatedOrders = await OrderModel.updateMany(
+    { _id: { $in: req.body.orders } },
+    {
+      $set: {
+        status: "قيد التشغيل",
+      },
+      $push: {
+        updates: {
+          info: "تم تغيير الحالو لقيد التشغيل",
+          timestamp: new Date(),
+        },
+      },
+    }
+  );
+  res.status(200).json({ data: updatedOrders });
+};
+
+export const getOrdersCount = async (req:Request , res : Response)=>{
+  console.log(req.body)
+  const pendingOrdersCount = await getOrderCountByStatus('قيد التشغيل');
+  const deliveredOrdersCount = await getOrderCountByStatus('تم التسليم');
+  const partialDeliveryOrdersCount = await getOrderCountByStatus('تسليم جزئي');
+  const returnedOrdersCount = await getOrderCountByStatus('مرتجع');
+  res.status(200).json({data : 
+    {pending : pendingOrdersCount,
+     deliver : deliveredOrdersCount ,
+     part : partialDeliveryOrdersCount , 
+     back : returnedOrdersCount
+   }})
+}
+async function getOrderCountByStatus(status : string) {
+  try {
+      const count = await OrderModel.countDocuments({ status: status }).exec();
+      return count;
+  } catch (error) {
+      // Handle the error appropriately
+      throwNotFoundError('لا يوج اعداد بعض الطلبات')
+      throw error;
+  }
+}

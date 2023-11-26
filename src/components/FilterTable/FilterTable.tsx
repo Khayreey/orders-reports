@@ -4,7 +4,7 @@ import CollapseChildren from '../CollapseChildren/CollapseChildren'
 
 const FilterTable = () => {
   return (
-    <Collapse style={{border : 'none' , marginBottom : '10px'}}
+    <Collapse defaultActiveKey='1' style={{border : 'none' , marginBottom : '10px'}}
       items={[{ key: '1', label: 'خيارات البحث', children: <CollapseChildren /> }]}
     />
   )

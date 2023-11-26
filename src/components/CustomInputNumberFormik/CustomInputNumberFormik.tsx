@@ -11,6 +11,7 @@ interface InputInterface {
   placeholder: string;
   required?: boolean;
   isTextArea?: boolean;
+  isReadOnly? : boolean ;
   validation :  {
     validator({ field }: any, value: string): Promise<void>;
 } 
@@ -22,7 +23,8 @@ const CustomInputNumberFormik = ({
   name,
   Icon,
   label,
-  validation
+  validation , 
+  isReadOnly
 }: InputInterface) => {
   const [field, meta] = useField(name);
 
@@ -47,7 +49,7 @@ const CustomInputNumberFormik = ({
           placeholder={placeholder}
           prefix={Icon}
           size="large"
-         
+          disabled={isReadOnly}
         />
     </Form.Item>
   );

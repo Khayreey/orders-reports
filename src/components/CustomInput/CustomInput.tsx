@@ -9,6 +9,7 @@ interface InputInterface {
   Icon?: React.ReactNode;
   label: string;
   placeholder: string;
+  isReadOnly? : boolean ;
   required?: boolean;
   isTextArea?: boolean;
   validation :  {
@@ -22,16 +23,19 @@ const CustomInput = ({
   name,
   Icon,
   label,
-  validation
+  validation , 
+  isReadOnly
 }: InputInterface) => {
   const [field, meta] = useField(name);
 
   return (
     <Form.Item
+      style={{ width :   "100%"  }}
       hasFeedback
       label={label}
       {...field}
       name={name}
+    
       validateTrigger="onBlur"
       {...meta}
       rules={!required && meta.value ==='' ? [] : [validation]}
@@ -43,9 +47,9 @@ const CustomInput = ({
       }
     >
       {isTextArea ? (
-        <TextArea size="large" rows={2} placeholder={placeholder} />
+        <TextArea disabled={isReadOnly} size="large" rows={2} placeholder={placeholder} />
       ) : (
-        <Input size="large" placeholder={placeholder} prefix={Icon} />
+        <Input disabled={isReadOnly} size="large" placeholder={placeholder} prefix={Icon} />
       )}
     </Form.Item>
   );
