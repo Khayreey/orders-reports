@@ -4,7 +4,7 @@ import { FloatButton, Form, FormInstance, Input } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineCheck } from "react-icons/ai";
 import ClearForm from "../../helpers/ClearForm/ClearForm";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DispatchInterface from "../../types/DispatchInterface";
 import { updateShip } from "../../store/shipSlice/shipSlice";
 
@@ -18,6 +18,8 @@ const ExpandShip = ({ record }: ExpandShipInterface) => {
   const formRef = useRef<FormInstance<any>>(null);
   const [shipName, setShipName] = useState(record.name);
   const [shipPhone, setShipPhone] = useState(record.phone);
+
+  const {token} = useSelector((state : any) => state.auth)
 
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const dispatch : DispatchInterface = useDispatch()
@@ -52,6 +54,7 @@ const ExpandShip = ({ record }: ExpandShipInterface) => {
         data: { name: shipName, phone: shipPhone },
         url: `ship/${record.key}`,
         toastMessage: "تم تعديل مسئول الشحن",
+        token
       })
     );
   };

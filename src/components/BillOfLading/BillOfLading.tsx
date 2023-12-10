@@ -8,8 +8,8 @@ const BillOfLading = (({order , isSheet} : any) => {
  
   
   return (
-    <div style={{border : '.5px solid black' ,display :'block' ,pageBreakInside: 'avoid' , clear : 'both'}} >
-      <BillHeader order={order}/>
+    <div style={{border : '.5px solid black' ,display :'block' ,pageBreakInside: 'avoid' , margin : '8px 0px'  }} >
+      <BillHeader order={order} isSheet={isSheet}/>
       <BillBody order={order} isSheet={isSheet}/>
     </div>
   )

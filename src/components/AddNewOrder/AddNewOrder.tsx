@@ -26,16 +26,17 @@ const AddNewOrder = () => {
   const {  productsDB   } = useSelector((state : any)=>state.product)
   const {isWaitingForAddOrder} = useSelector(( state : any)=>state.order)
   useEffect(()=>{
-    dispatch(getAllProducts({url : 'product'}))
+    dispatch(getAllProducts({url : 'product' , token}))
 } , [dispatch , isFormSubmit])
 const {  ships  } = useSelector((state : any)=>state.ship)
 
 const [formattedProducts , setFormattedProducts] : any = useState([])
 const [formattedShips , setFormattedShips] = useState([])
 useEffect(()=>{
-  dispatch(getAllShips({url : 'ship'}))
+  dispatch(getAllShips({url : 'ship' , token}))
 } , [ dispatch])
 
+const {token} = useSelector((state : any)=>state.auth)
 useEffect(()=>{
   if(!ships || ships.length ===0) return 
   const data = ships? ships.map(({ _id , name} : any)=>{
@@ -157,7 +158,7 @@ useEffect(() => {
           })
           
           dispatch(createNewOrder(
-            {url : 'order' , clearForm : ()=> {
+            {url : 'order' , token  , clearForm : ()=> {
               helpers.resetForm()
 
               setProducts(()=>{

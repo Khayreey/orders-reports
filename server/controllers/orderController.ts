@@ -126,14 +126,16 @@ export const getAllPendingOrders = async (req: Request, res: Response) => {
 
   const pendingOrders = await OrderModel.find({ status: "معلق" })
     .populate("products.product")
-    .populate("shipId")
-    .sort({ updatedAt: -1 });
-
+    .populate("shipId");
   // Manually select the desired type based on products.type
   const processedOrders = pendingOrders.map((order) => ({
     _id: order._id,
     id: order.id,
+
+    createdAt: order.createdAt,
+    updates: order.updates,
     status: order.status,
+
     price: order.price,
     name: order.name,
     phone: order.phone,
@@ -157,7 +159,136 @@ export const getAllPendingOrders = async (req: Request, res: Response) => {
 
   res.status(200).json({ data: processedOrders });
 };
+export const getOrderById = async (req: Request, res: Response) => {
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.view.includes("order");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لتصفح الطلبات");
 
+  if (!req.params.id) throwBadRequestError("لابد من توافر رقم الطلب");
+  const singleOrder = await OrderModel.find({ id: req.params.id })
+    .populate("products.product")
+    .populate("shipId");
+
+  if (!singleOrder) throwNotFoundError("هذا الطلب غير موجود");
+  // Manually select the desired type based on products.type
+  const processedOrders = singleOrder.map((order) => ({
+    _id: order._id,
+    id: order.id,
+
+    createdAt: order.createdAt,
+    updates: order.updates,
+    status: order.status,
+
+    price: order.price,
+    name: order.name,
+    phone: order.phone,
+    anotherPhone: order.anotherPhone,
+    address: order.address,
+    country: order.country,
+    notes: order.notes,
+    ship: order.shipId,
+    products: order.products.map((product) => ({
+      product: {
+        _id: (product.product as any)._id, // Cast to any to access _id
+        name: (product.product as any).name,
+        quantity: product.quantity,
+        type: (product.product as any).type.find(
+          (type: any) => type._id.toString() === product.type
+        ), // Manual selection
+      },
+      // ... other fields
+    })),
+  }));
+
+  res.status(200).json({ data: processedOrders[0] });
+};
+
+export const getOrderByPhone = async (req: Request, res: Response) => {
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.view.includes("order");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لتصفح الطلبات");
+
+  if (!req.params.phone) throwBadRequestError("لابد من توافر رقم الطلب");
+  const singleOrder = await OrderModel.find({ phone : req.params.phone })
+    .populate("products.product")
+    .populate("shipId");
+
+  if (!singleOrder) throwNotFoundError("هذا الطلب غير موجود");
+  // Manually select the desired type based on products.type
+  const processedOrders = singleOrder.map((order) => ({
+    _id: order._id,
+    id: order.id,
+
+    createdAt: order.createdAt,
+    updates: order.updates,
+    status: order.status,
+
+    price: order.price,
+    name: order.name,
+    phone: order.phone,
+    anotherPhone: order.anotherPhone,
+    address: order.address,
+    country: order.country,
+    notes: order.notes,
+    ship: order.shipId,
+    products: order.products.map((product) => ({
+      product: {
+        _id: (product.product as any)._id, // Cast to any to access _id
+        name: (product.product as any).name,
+        quantity: product.quantity,
+        type: (product.product as any).type.find(
+          (type: any) => type._id.toString() === product.type
+        ), // Manual selection
+      },
+      // ... other fields
+    })),
+  }));
+
+  res.status(200).json({ data: processedOrders });
+};
+export const getOrderByName = async (req: Request, res: Response) => {
+  // const { permissions } = req.user;
+  // const isHaveAuth = permissions.view.includes("order");
+  // if (!isHaveAuth) throwForbiddnError("ليس لديك الصلاحية لتصفح الطلبات");
+
+  if (!req.params.name) throwBadRequestError("لابد من توافر رقم الطلب");
+  const singleOrder = await OrderModel.find({ name : req.params.name })
+    .populate("products.product")
+    .populate("shipId");
+
+  if (!singleOrder) throwNotFoundError("هذا الطلب غير موجود");
+  // Manually select the desired type based on products.type
+  const processedOrders = singleOrder.map((order) => ({
+    _id: order._id,
+    id: order.id,
+
+    createdAt: order.createdAt,
+    updates: order.updates,
+    status: order.status,
+
+    price: order.price,
+    name: order.name,
+    phone: order.phone,
+    anotherPhone: order.anotherPhone,
+    address: order.address,
+    country: order.country,
+    notes: order.notes,
+    ship: order.shipId,
+    products: order.products.map((product) => ({
+      product: {
+        _id: (product.product as any)._id, // Cast to any to access _id
+        name: (product.product as any).name,
+        quantity: product.quantity,
+        type: (product.product as any).type.find(
+          (type: any) => type._id.toString() === product.type
+        ), // Manual selection
+      },
+      // ... other fields
+    })),
+  }));
+
+  res.status(200).json({ data: processedOrders });
+};
 export const getAllRunningOrders = async (req: Request, res: Response) => {
   // const { permissions } = req.user;
   // const isHaveAuth = permissions.view.includes("order");
@@ -165,13 +296,14 @@ export const getAllRunningOrders = async (req: Request, res: Response) => {
 
   const runningOrders = await OrderModel.find({ status: "قيد التشغيل" })
     .populate("products.product")
-    .populate("shipId")
-    .sort({ updatedAt: -1 });
+    .populate("shipId");
 
   // Manually select the desired type based on products.type
   const processedOrders = runningOrders.map((order) => ({
     _id: order._id,
     id: order.id,
+    createdAt: order.createdAt,
+    updates: order.updates,
     status: order.status,
     price: order.price,
     name: order.name,
@@ -197,9 +329,6 @@ export const getAllRunningOrders = async (req: Request, res: Response) => {
   res.status(200).json({ data: processedOrders });
 };
 
-export const getAllOrders = async (req: Request, res: Response) => {
-  console.log(req, res);
-};
 export const deleteOrder = async (req: Request, res: Response) => {
   const {
     // user: { permissions },
@@ -351,11 +480,14 @@ export const updateOrder = async (req: Request, res: Response) => {
   );
 
   if (updatedOrder) {
-    updatedOrder.updates.push({
-      info: "Manually updated",
-      timestamp: new Date(),
-    });
-    await updatedOrder.save();
+    if (req.body.status === "قيد التشغيل") {
+      updatedOrder.updates.push({
+        info: "تم التشغيل",
+        timestamp: new Date(),
+      });
+      await updatedOrder.save();
+    }
+
     return res.json({ data: updatedOrder });
   } else {
     throwBadRequestError("خطأ في تعديل المنتجات في الاوردر");
@@ -614,9 +746,15 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
       }
     }
 
-    existingOrder.status = newStatus;
+    if (newStatus !== "معلق") {
+      existingOrder.updates.push({
+        info: "تم التسليم",
+        timestamp: new Date(),
+      });
+    }
 
     // Save the changes to the order
+    existingOrder.status = newStatus;
     await existingOrder.save();
 
     return res.status(200).json({ data: existingOrder });
@@ -706,7 +844,7 @@ export const runOrders = async (req: Request, res: Response) => {
       },
       $push: {
         updates: {
-          info: "تم تغيير الحالو لقيد التشغيل",
+          info: "تم التشغيل",
           timestamp: new Date(),
         },
       },
@@ -715,26 +853,179 @@ export const runOrders = async (req: Request, res: Response) => {
   res.status(200).json({ data: updatedOrders });
 };
 
-export const getOrdersCount = async (req:Request , res : Response)=>{
-  console.log(req.body)
-  const pendingOrdersCount = await getOrderCountByStatus('قيد التشغيل');
-  const deliveredOrdersCount = await getOrderCountByStatus('تم التسليم');
-  const partialDeliveryOrdersCount = await getOrderCountByStatus('تسليم جزئي');
-  const returnedOrdersCount = await getOrderCountByStatus('مرتجع');
-  res.status(200).json({data : 
-    {pending : pendingOrdersCount,
-     deliver : deliveredOrdersCount ,
-     part : partialDeliveryOrdersCount , 
-     back : returnedOrdersCount
-   }})
-}
-async function getOrderCountByStatus(status : string) {
+async function getOrderCountByStatus(status: string) {
   try {
-      const count = await OrderModel.countDocuments({ status: status }).exec();
-      return count;
+    const count = await OrderModel.countDocuments({ status: status }).exec();
+    return count;
   } catch (error) {
-      // Handle the error appropriately
-      throwNotFoundError('لا يوج اعداد بعض الطلبات')
-      throw error;
+    // Handle the error appropriately
+    throwNotFoundError("لا يوج اعداد بعض الطلبات");
+    throw error;
   }
 }
+
+export const getOrdersCount = async (req: Request, res: Response) => {
+  console.log(req.body);
+  const pendingOrdersCount = await getOrderCountByStatus("قيد التشغيل");
+  const deliveredOrdersCount = await getOrderCountByStatus("تم التسليم");
+  const partialDeliveryOrdersCount = await getOrderCountByStatus("تسليم جزئي");
+  const returnedOrdersCount = await getOrderCountByStatus("مرتجع");
+  res.status(200).json({
+    data: {
+      pending: pendingOrdersCount,
+      deliver: deliveredOrdersCount,
+      part: partialDeliveryOrdersCount,
+      back: returnedOrdersCount,
+    },
+  });
+};
+
+export const updateOrdersByIds = async (req: Request, res: Response) => {
+  if (!req.body.orders) throwBadRequestError("لابد من توافر الطلبات لتعديلها");
+  if (!req.body.status)
+    throwBadRequestError("لابد من اختيار الحالة المراد التحويل لها");
+
+  const ordersToUpdate = await OrderModel.find({
+    id: { $in: req.body.orders },
+    status: "قيد التشغيل",
+  });
+
+  if (ordersToUpdate.length !== req.body.orders.length)
+    throwBadRequestError(" يوجد طلبات غير موجودة او تم تسليمها بالفعل");
+
+  // Iterate over each order to update
+  for (const orderToUpdate of ordersToUpdate) {
+    // Update the order
+    await OrderModel.updateOne(
+      { id: orderToUpdate.id },
+      {
+        $set: {
+          status: req.body.status,
+          notes: req.body.notes,
+        },
+        $push: {
+          updates: {
+            info: "تم التسليم",
+            timestamp: new Date(),
+          },
+        },
+      }
+    );
+
+    // If the new status is 'مرتجع', retrieve quantity from the database
+    if (req.body.status === "مرتجع") {
+      for (const product of orderToUpdate.products) {
+        const dbProduct = await ProductModel.findById(product.product);
+
+        if (dbProduct) {
+          // Update the product quantity in the database
+          dbProduct.quantity += product.quantity;
+
+          // Update the product type quantity if applicable
+          if (product.type && dbProduct.type && dbProduct.type.length > 0) {
+            const productTypeIndex = dbProduct.type.findIndex((t) =>
+              t.equals(product.type)
+            );
+
+            if (productTypeIndex !== -1) {
+              // Ensure the type index is valid before updating the quantity
+              dbProduct.type[productTypeIndex].quantity += product.quantity;
+            } else {
+              console.error(
+                `Type ${product.type} not found for product ${dbProduct._id}`
+              );
+              // Handle the case where the type is not found
+              // You might want to throw an error or handle it according to your requirements
+            }
+          }
+
+          // Save the changes to the product
+          await dbProduct.save();
+        }
+      }
+    }
+  }
+
+  res.status(200).json({ message: "Orders updated successfully" });
+};
+
+export const getAllOrdersWithFilter = async (req: Request, res: Response) => {
+  const query: any = {};
+  const filter = req.query;
+
+  
+
+  if (filter.startOrderDate && filter.endOrderDate) {
+    query.createdAt = {
+      $gte: new Date(`${filter.startOrderDate}T00:00:00.000Z`),
+      $lte: new Date(`${filter.endOrderDate}T23:59:59.999Z`),
+    };
+  }
+  if (filter.status) {
+    query.status = filter.status;
+  }
+  if (filter.startDeliverDate && filter.endDeliverDate) {
+    
+    query["updates.timestamp"] = {
+      $gte: new Date(`${filter.startDeliverDate}T00:00:00.000Z`),
+      $lte: new Date(`${filter.endDeliverDate}T23:59:59.999Z`),
+    };
+    query["updates.info"] = "تم التسليم";
+    
+  }
+  // if (filter.country && filter.city) {
+  //   query.country = { $in: decodeURIComponent(filter.country as string)} };
+  //   console.log(query)
+  // }
+
+  if (filter.country) {
+    const decodedCountry = decodeURIComponent(filter.country as string);
+    query.country = decodedCountry;
+  }
+  
+  const allOrdersWithFilter = await OrderModel.find(query).populate("products.product")
+  .populate("shipId");
+// Manually select the desired type based on products.type
+if(allOrdersWithFilter.length > 0) {
+  const processedOrders = allOrdersWithFilter.map((order) => ({
+    _id: order._id,
+    id: order.id,
+  
+    createdAt: order.createdAt,
+    updates: order.updates,
+    status: order.status,
+  
+    price: order.price,
+    name: order.name,
+    phone: order.phone,
+    anotherPhone: order.anotherPhone,
+    address: order.address,
+    country: order.country,
+    notes: order.notes,
+    ship: order.shipId,
+    products: order.products.map((product) => ({
+      product: {
+        _id: (product.product as any)._id, // Cast to any to access _id
+        name: (product.product as any).name,
+        quantity: product.quantity,
+        type: (product.product as any).type.find(
+          (type: any) => type._id.toString() === product.type
+        ), // Manual selection
+      },
+      // ... other fields
+    })),
+  }));
+   
+  
+    res.status(200).json({ data: processedOrders });
+}
+else {
+  res.status(200).json({ data: allOrdersWithFilter });
+}
+};
+
+
+
+
+
+

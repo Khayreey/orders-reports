@@ -10,6 +10,7 @@ import AddProductWithName from "../AddProductWithName/AddProductWithName";
 
 const AddNewProduct = () => {
   const [isHaveType, setIsHaveType] = useState(false);
+ 
   return (
     <>
       <MainContainer title="اضافة منتج جديد">

@@ -50,6 +50,7 @@ const CustomVarSelectFormik = ({
         }
       >
         <Cascader 
+        showSearch
         style={{width : '100%'}} size="large" options={options} dropdownRender={dropdownRender}
          placeholder={placeholder} 
          onChange={(e)=> helpers.setValue(e)}

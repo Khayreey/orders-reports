@@ -19,6 +19,12 @@ export const createNewOrder = createAsyncThunk(
    }
 );
 
+export const getAllRunningOrders = createAsyncThunk(
+  "order/getRunning",
+   async (information : any, thunkAPI) => {
+    return GetFromDB(information, thunkAPI);
+   }
+);
 export const updateOrderProducts = createAsyncThunk(
   "order/updateProducts",
    async (information : any, thunkAPI) => {
@@ -48,9 +54,47 @@ export const deletePendingOrder = createAsyncThunk(
    }
 );
 
+export const getSingleOrder = createAsyncThunk('order/getSingle' , 
+
+async(information : any , thunkAPI)=>{
+  return GetFromDB(information , thunkAPI)
+})
+
+export const getOrdersByPhone = createAsyncThunk('order/getByPhone' , 
+
+async(information : any , thunkAPI)=>{
+  return GetFromDB(information , thunkAPI)
+})
+export const getOrdersByName = createAsyncThunk('order/getByName' , 
+
+async(information : any , thunkAPI)=>{
+  return GetFromDB(information , thunkAPI)
+})
+export const updateOrders = createAsyncThunk(
+  "order/updateMany",
+  async (information : any, thunkAPI) => {
+   return AddToDB(information, thunkAPI);
+  }
+)
+
+export const getAllOrdersWithFilter = createAsyncThunk(
+  "order/getFilter",
+   async (information : any, thunkAPI) => {
+    return GetFromDB(information, thunkAPI);
+   }
+);
+
+export const getSingleOrderView = createAsyncThunk('order/getSingleView' , 
+
+async(information : any , thunkAPI)=>{
+  return GetFromDB(information , thunkAPI)
+})
+
+
  const initialState = {
   isWaitingForAddOrder : false , 
   pendingOrders : [] , 
+  runningOrders : [] , 
   isWaitingForGetPendingOrders : false , 
   isPendingOrdersRequireRender : false , 
   isErrorInGetPendingOrders : '' || undefined , 
@@ -59,16 +103,125 @@ export const deletePendingOrder = createAsyncThunk(
   isWaitingForRunOrders : false , 
   isWaitingForGetCount : false , 
   counts : {} , 
-  isWaitingForDeleteOrder : false
+  isWaitingForDeleteOrder : false , 
+  isWaitingForGetSingleOrder : false , 
+
+  singleOrder : {} , 
+  ordersByName : [] , 
+  ordersByPhone : [] ,
+  isWaitingForGetSingleOrderView : false , 
+  issWaitingForGetOrdersByName : false , 
+
+  issWaitingForGetOrdersByPhone : false , 
+  
+  singleOrderView : {} , 
+  
+  isWaitingForUpdateManyOrders : false , 
+  errorInUpdateMany : '' || undefined , 
+  isSingleOrderRequireRender : false , 
+  isWaitingForGetOrdersWithFilter : false , 
+  filterOrders : []
 }
 const orderSlice = createSlice({
    name : 'order' , 
    initialState ,
    reducers : {
-    
+      clearOrderSearch(state){
+        state.singleOrder = {}
+      }
    } ,
    extraReducers : (builder)=>{
-      
+     
+     //start of get singleOrder 
+     builder.addCase(getAllOrdersWithFilter.pending , (state )=>{
+      state.isWaitingForGetOrdersWithFilter = true
+   })
+   builder.addCase(getAllOrdersWithFilter.fulfilled , (state , action)=>{
+     state.isWaitingForGetOrdersWithFilter = false
+     state.filterOrders = action.payload
+     
+   })
+   builder.addCase(getAllOrdersWithFilter.rejected , (state)=>{
+     state.isWaitingForGetOrdersWithFilter = false
+     
+  })
+  // end of get single order   
+
+    //start of get singleOrder 
+     builder.addCase(updateOrders.pending , (state )=>{
+      state.isWaitingForUpdateManyOrders = true
+   })
+   builder.addCase(updateOrders.fulfilled , (state)=>{
+     state.isWaitingForUpdateManyOrders = false
+     
+   })
+   builder.addCase(updateOrders.rejected , (state)=>{
+     state.isWaitingForUpdateManyOrders = false
+     
+  })
+  // end of get single order   
+  
+   //start of get singleOrder 
+   builder.addCase(getSingleOrderView.pending , (state )=>{
+    state.isWaitingForGetSingleOrder = true
+ })
+ builder.addCase(getSingleOrderView.fulfilled , (state , action)=>{
+   state.isWaitingForGetSingleOrderView = false
+   state.singleOrderView = action.payload
+ })
+ builder.addCase(getSingleOrderView.rejected , (state )=>{
+   state.isWaitingForGetSingleOrderView = false
+})
+// end of get single order   
+  
+  //start of get singleOrder 
+      builder.addCase(getSingleOrder.pending , (state )=>{
+        state.isWaitingForGetSingleOrder = true
+        state.singleOrder = {} ,
+        state.ordersByPhone = [] , 
+        state.ordersByName = []
+     })
+     builder.addCase(getSingleOrder.fulfilled , (state , action)=>{
+       state.isWaitingForGetSingleOrder = false
+       state.singleOrder = action.payload
+     })
+     builder.addCase(getSingleOrder.rejected , (state )=>{
+       state.isWaitingForGetSingleOrder = false
+    })
+    // end of get single order
+    
+    //start of get orders by phone 
+    builder.addCase(getOrdersByPhone.pending , (state )=>{
+      state.issWaitingForGetOrdersByPhone = true
+        state.singleOrder = {} ,
+        state.ordersByPhone = [] , 
+        state.ordersByName = []
+   })
+   builder.addCase(getOrdersByPhone.fulfilled , (state , action)=>{
+     state.issWaitingForGetOrdersByPhone = false
+     state.ordersByPhone = action.payload
+   })
+   builder.addCase(getOrdersByPhone.rejected , (state )=>{
+     state.issWaitingForGetOrdersByPhone = false
+  })
+  // end of get orders by phone
+
+   //start of get orders by names 
+   builder.addCase(getOrdersByName.pending , (state )=>{
+    state.issWaitingForGetOrdersByName = true
+      state.singleOrder = {} ,
+      state.ordersByPhone = [] , 
+      state.ordersByName = []
+ })
+ builder.addCase(getOrdersByName.fulfilled , (state , action)=>{
+   state.issWaitingForGetOrdersByName = false
+   state.ordersByName = action.payload
+ })
+ builder.addCase(getOrdersByName.rejected , (state )=>{
+   state.issWaitingForGetOrdersByName = false
+})
+// end of get orders by phone
+
      //start of create order   Done!!!!!!!!!!!!!!!!!!1
      builder.addCase(createNewOrder.pending , (state )=>{
         state.isWaitingForAddOrder = true
@@ -80,7 +233,20 @@ const orderSlice = createSlice({
        state.isWaitingForAddOrder = false
     })
    //end of create order Done!!!!!!!!!!!!!!!!!!1
-    
+   
+ //start of get pending orders   Done!!!!!!!!!!!!!!!!!!1
+ builder.addCase(getAllRunningOrders.pending , (state )=>{
+  state.isWaitingForGetPendingOrders = true
+})
+builder.addCase(getAllRunningOrders.fulfilled , (state , action)=>{
+ state.runningOrders = action.payload 
+ state.isWaitingForGetPendingOrders = false
+})
+builder.addCase(getAllRunningOrders.rejected , (state )=>{
+ state.isWaitingForGetPendingOrders = false
+})
+//end of get pending orders Done!!!!!!!!!!!!!!!!!!1
+
    //start of get pending orders   Done!!!!!!!!!!!!!!!!!!1
      builder.addCase(getAllPendingOrders.pending , (state )=>{
         state.isWaitingForGetPendingOrders = true
@@ -114,7 +280,8 @@ const orderSlice = createSlice({
  })
  builder.addCase(updateOrderProducts.fulfilled , (state )=>{ 
    state.isWaitingForUpdateOrder = false
-   state.isPendingOrdersRequireRender = !state.isPendingOrdersRequireRender
+   state.isSingleOrderRequireRender = !state.isSingleOrderRequireRender
+  
  })
  builder.addCase(updateOrderProducts.rejected , (state )=>{
    state.isWaitingForUpdateOrder = false
@@ -153,4 +320,5 @@ builder.addCase(deletePendingOrder.pending , (state )=>{
    
  }
 })
+export const orderActions = orderSlice.actions
 export default orderSlice

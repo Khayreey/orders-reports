@@ -1,4 +1,5 @@
 import ReactDOM from "react-dom/client";
+import { BrowserRouter as Router } from "react-router-dom";  // Import BrowserRouter
 import App from "./App.tsx";
 import "./index.css";
 import config from "./config.ts";
@@ -10,8 +11,10 @@ import { Toaster } from "react-hot-toast";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <ConfigProvider theme={config}>
-      <Toaster containerStyle={{zIndex : '999999999999999999'}}/> 
-      <App />
+      <Toaster containerStyle={{ zIndex: '999999999999999999' }} />
+      
+        <App />
+     
     </ConfigProvider>
   </Provider>
 );

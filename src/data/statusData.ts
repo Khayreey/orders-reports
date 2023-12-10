@@ -34,4 +34,17 @@ const statusData = [
      
          
   ];
+  export  const statusUpdateData = [
+    {
+      value: 'مرتجع',
+      label: 'مرتجع',  
+    },
+    {
+        value: 'تم التسليم',
+        label: 'تم التسليم',
+
+      },
+     
+         
+  ];
   export default statusData

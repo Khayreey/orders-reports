@@ -10,10 +10,12 @@ import {
 } from "../../store/orderSlice/orderSlice";
 import { ColumnsType } from "antd/es/table";
 import TableWrapper from "../../components/TableWrapper/TableWrapper";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { Button, Select, Typography } from "antd";
 import LoadingPage from "../LoadingPage/LoadingPage";
 import DeleteModal from "../../modals/DeleteModal/DeleteModal";
+import FormatDate from "../../helpers/FormatDate/FormatDate";
+import { Link } from "react-router-dom";
 
 interface DataType {
   id: React.Key;
@@ -25,12 +27,16 @@ interface DataType {
   address: any;
 }
 const BillsPage = () => {
+  
+  
+  const {token} = useSelector((state : any)=>state.auth)
+  
   const {
     isWaitingForRunOrders,
     isPendingOrdersRequireRender,
     pendingOrders,
     isWaitingForGetPendingOrders,
-    isWaitingForDeleteOrder
+    isWaitingForDeleteOrder,
   } = useSelector((state: any) => state.order);
   const dispatch: DispatchInterface = useDispatch();
   // state for mange all ships and filter them
@@ -38,14 +44,13 @@ const BillsPage = () => {
   const [selectedShip, setSelectedShip] = useState("الكل");
   const [selectedShipOrders, setSelectedShipOrders] = useState([]);
 
-  
   // set ships when orders come to display list for each ship responsible
   //useEffect to rest select ship when ever ships change
   useEffect(() => {
     if (!pendingOrders || pendingOrders.length === 0) return;
     {
       const format = pendingOrders.map(({ ship }: any) => {
-        return { label: ship.name, value: ship._id };
+        return { label: ship.name, value: ship._id , phone : ship.phone };
       });
       const uniqueSet = new Set(format.map(JSON.stringify));
 
@@ -61,23 +66,25 @@ const BillsPage = () => {
   }, [pendingOrders]);
 
   useEffect(() => {
-    dispatch(getAllPendingOrders({ url: "order/pending" }));
+    dispatch(getAllPendingOrders({ url: "order/pending"  , token}));
   }, [isPendingOrdersRequireRender, dispatch]);
 
   useEffect(() => {
     if (!pendingOrders) return;
-    const formateOrders = pendingOrders.map(({ _id, ...state }: any) => {
-      return { ...state, key: _id };
-    });
-    setSelectedShipOrders(formateOrders);
+
+    setSelectedShipOrders(pendingOrders);
   }, [pendingOrders]);
 
-  const confirmDelete = (id : string)=>{
-   
-    dispatch(deletePendingOrder({url : 'order'  , id : id ,
-     toastMessage : 'تم جذف الطلب بنجاح'}))
-
-  }
+  const confirmDelete = (id: string) => {
+    dispatch(
+      deletePendingOrder({
+        url: "order",
+        id: id,
+        toastMessage: "تم جذف الطلب بنجاح",
+        token
+      })
+    );
+  };
 
   const columns: ColumnsType<DataType> = [
     {
@@ -95,11 +102,19 @@ const BillsPage = () => {
         </Typography>
       ),
     },
+
     {
       title: "سعر الطلب",
       dataIndex: "price",
       key: "price",
     },
+    {
+      title: "وقت الكتابة",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (e) => FormatDate(e),
+    },
+
     {
       title: "المحافظة",
       dataIndex: "country",
@@ -114,11 +129,23 @@ const BillsPage = () => {
       title: "الاجرائات",
       dataIndex: "",
       key: "x",
-      render: (e : any) => (
-        <a>
-          <DeleteOutlined onClick={()=> DeleteModal(`"طلب مازال معلق"`, isWaitingForDeleteOrder ,()=>confirmDelete(e.key))}
-          />
-        </a>
+      render: (e: any) => (
+        <div style={{display : 'flex' , alignItems : 'center' , gap : '20px'}}>
+          <a>
+            <DeleteOutlined
+              onClick={() =>
+                DeleteModal(`"طلب مازال معلق"`, isWaitingForDeleteOrder, () =>
+                  confirmDelete(e._id)
+                )
+              }
+            />
+          </a>
+          <Link to={`/orders/${e.id}`}>
+            <EyeOutlined
+            // onClick={()=> DeleteModal(e.name, isWaitingForDeleteShip ,()=>confirmDelete(e.key))}
+            />
+          </Link>
+        </div>
       ),
     },
   ];
@@ -126,20 +153,13 @@ const BillsPage = () => {
   const changeShipHandler = (e: any) => {
     setSelectedShip(e);
     if (e === "الكل") {
-      const formateOrders = pendingOrders.map(({ _id, ...state }: any) => {
-        return { ...state, key: _id };
-      });
-      setSelectedShipOrders(formateOrders);
+      setSelectedShipOrders(pendingOrders);
     } else {
       const shipOrdersFromPending = pendingOrders.filter(
         (order: { ship: { _id: any } }) => order.ship?._id == e
       );
-      const formateOrders = shipOrdersFromPending.map(
-        ({ _id, ...state }: any) => {
-          return { ...state, key: _id };
-        }
-      );
-      setSelectedShipOrders(formateOrders);
+
+      setSelectedShipOrders(shipOrdersFromPending);
     }
   };
 
@@ -157,9 +177,11 @@ const BillsPage = () => {
         data: { orders: ids },
 
         url: "/order/run",
+        token
       })
     );
   };
+  
   return (
     <>
       {isWaitingForRunOrders ? <LoadingPage /> : null}
@@ -180,7 +202,12 @@ const BillsPage = () => {
             value={selectedShip}
             onChange={(e) => changeShipHandler(e)}
           />
-          <PrintBills data={selectedShipOrders} />
+          {selectedShip === 'الكل'
+           ? null 
+           : 
+           <PrintBills data={selectedShipOrders} ship={ships.length >  0 ? ships.find((e : any)=>e.value == selectedShip) : ""}/>
+          }
+          
 
           <Button
             onClick={runOrdersHandler}

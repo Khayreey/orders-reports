@@ -15,6 +15,8 @@ const AddProductWithName = () => {
   const [productQuantity, setProductQuantity] = useState("");
   const [isFormError, setIsFormError] = useState(false);
   
+  const {token} = useSelector((state : any)=>state.auth)
+
   const [form] = Form.useForm();
   
   // handle backend duplicate error 
@@ -42,7 +44,8 @@ const AddProductWithName = () => {
     dispatch(createNewProduct(
       {url : 'product' , clearForm  ,
        toastMessage : 'تم اضافة المنتج بنجاح' ,
-       data : {name : productName ,  quantity : productQuantity }
+       data : {name : productName ,  quantity : productQuantity } , 
+       token
       }))
 }
 

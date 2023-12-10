@@ -4,16 +4,10 @@
 }
 
 @media print {
-    html, body {
-      height: 100vh;
-      margin: 0 !important;
-      padding: 0 !important
-    }
-    .page-break {
-      margin-top: 2rem;
-      display: block;
-      page-break-after: always;
-    }
+  html, body {
+      margin: 8px !important;
+      padding: 0 !important;
+  }
 }
 .ant-form-item-explain-error {
   position : absolute!important ; 

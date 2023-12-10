@@ -27,7 +27,7 @@ const authMiddelware = (req : Request, res : Response, next : NextFunction)=>{
 
         try {
             const { userId ,permissions , roleName } = jwt.verify(token , process.env.JWT_SECRET) as JwtPayload
-            req.user = {userId : userId ,permissions :permissions , roleName : roleName }
+            req.user = {userId : userId  , permissions :permissions , roleName : roleName }
             next()
         }
         catch(err){

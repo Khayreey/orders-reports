@@ -38,9 +38,7 @@ const addOrderSchema = Yup.object().shape({
    
    .min(8, "هذا العنوان صغير")
    .required("لابد ان تكتب العنوان التفصيلي"),
-   details :   Yup.string()
-   .matches(/^[ء-ي\s]+$/, "اكتب التفاصيل باللغة العربية ققط ").optional() ,
-   
+   details :   Yup.string().optional() ,
    city :   Yup.array()
    .required("لابد ان تختار المحافظة والمدينة"), 
    ship : Yup.array()

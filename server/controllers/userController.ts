@@ -16,13 +16,19 @@ export const loginHandler =  async (req : Request,res : Response)=>{
         const isMatch = await user.isPasswordMatch(password)
         if(!isMatch) throwAuthError('كلمة مرور خاطئة' , "password")
         const token = user.createJWT()
-        res.status(200).json({user , token})
+        
+        console.log(user)
+        res.status(200).json({ data :  {user , token}})
     }
 }
 
 export const createNewUserHandler =  async (req : Request, res : Response)=>{
-    const {email   , password , roleName , permissions} = req.body
-    const user = await UserModel.create({email , password , roleName , permissions}) 
+     const { permissions } = req.user;
+     const isHaveAuth = permissions.view.includes("dash");
+     console.log(req.user.permissions)
+     if (!isHaveAuth) throwAuthError("ليس لديك الصلاحية  لانشاء مستخدم");
+    const {email   , password , roleName , permission} = req.body
+    const user = await UserModel.create({email , password , roleName , permission}) 
     const token = user.createJWT()
     res.status(201).json({user , token})  
 } 

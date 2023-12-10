@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Cascader, Divider, Form } from "antd";
+import { Cascader, Form } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { yupSync } from "../../validationSchema/AddOrderSchema";
 
@@ -40,12 +40,7 @@ const CustomVarSelect = ({
     }
   };
 
-  const dropdownRender = (menus: React.ReactNode) => (
-    <div>
-      {menus}
-      <Divider style={{ margin: 0 }} />
-    </div>
-  );
+ 
 
   return (
     <>
@@ -62,10 +57,11 @@ const CustomVarSelect = ({
         }
       >
         <Cascader
+           showSearch 
           style={{ width: "100%" }}
           size="large"
           options={options}
-          dropdownRender={dropdownRender}
+         
           placeholder={placeholder}
           onChange={(e) => addProduct(e)}
           value={value}

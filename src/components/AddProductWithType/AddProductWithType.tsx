@@ -17,6 +17,8 @@ const AddProductWithType = () => {
   const [productName, setProductName] = useState("");
   const [isFormError, setIsFormError] = useState(false);
 
+  const {token} = useSelector((state : any)=>state.auth)
+
   const dispatch : DispatchInterface = useDispatch()
   const addProductInput = () => {
     setProducts((state) => {
@@ -64,7 +66,8 @@ const AddProductWithType = () => {
       dispatch(createNewProduct(
         {url : 'product' , clearForm  ,
          toastMessage : 'تم اضافة المنتج بنجاح' ,
-         data : {name : productName ,  type : formattedProducts }
+         data : {name : productName ,  type : formattedProducts } , 
+         token
         }))
   }
  

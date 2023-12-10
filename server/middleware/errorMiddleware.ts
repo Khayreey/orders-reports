@@ -7,7 +7,7 @@ import {   MongoServerError } from 'mongodb'
 
 
 const errorMiddelware = (err: Error  , req: Request, res: Response , next : NextFunction) => {
-    console.log(err)
+   console.log(err)
     let customError = {
         statusCode: 500,
         message: "Some Thing went wrong try later ...." , 

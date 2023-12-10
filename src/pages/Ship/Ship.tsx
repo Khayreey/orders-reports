@@ -1,71 +1,100 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useDispatch, useSelector } from "react-redux"
-import MainContainer from "../../Containers/MainContainer/MainContainer"
-import AddNewShip from "../../components/AddNewShip/AddNewShip"
-import TableWrapper from "../../components/TableWrapper/TableWrapper"
-import { useEffect } from "react"
-import DispatchInterface from "../../types/DispatchInterface"
-import { deleteShip, getAllShips } from "../../store/shipSlice/shipSlice"
-import DeleteModal from "../../modals/DeleteModal/DeleteModal"
-import { DeleteOutlined , EyeOutlined } from "@ant-design/icons"
-import { ColumnsType } from "antd/es/table";
-import {useNavigate} from 'react-router-dom'
-interface DataType {
-  id : React.Key , 
-  name: string;
-  phone: string;
-  
-}
+import { useDispatch, useSelector } from "react-redux";
+import MainContainer from "../../Containers/MainContainer/MainContainer";
+import AddNewShip from "../../components/AddNewShip/AddNewShip";
+import TableWrapper from "../../components/TableWrapper/TableWrapper";
+import { useEffect } from "react";
+import DispatchInterface from "../../types/DispatchInterface";
+import { getAllShips } from "../../store/shipSlice/shipSlice";
+import { EyeOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+
 
 const Ship = () => {
-  const {isWaitingForShips , ships  , isWaitingForDeleteShip , isShipsRequireRender} = useSelector((state : any)=>state.ship)
-  const dispatch : DispatchInterface = useDispatch()
-  
+  const { permissions } = useSelector((state: any) => state.auth);
+  const isHaveAuthToCreate = permissions &&permissions.create&& permissions.create.includes('ship') ? true : false
+  const isHaveAuthToUpdate = permissions && permissions.update && permissions.update.includes('ship') ? true : false
+  const isHaveAuthToView = permissions && permissions.view && permissions.view.includes('ship') ? true : false
+  const {
+    isWaitingForShips,
+    ships,
 
-  const navigate = useNavigate()
-  const formattedShips = ships? ships.map(({ _id , ...state} : any)=>{
-    return {...state , key : _id}
-  }) : []
-  
-  useEffect(()=>{
-     dispatch(getAllShips({url : 'ship'}))
-  } , [isShipsRequireRender , dispatch])
-  
-  const columns: ColumnsType<DataType> = [
+    isShipsRequireRender,
+  } = useSelector((state: any) => state.ship);
+  const dispatch: DispatchInterface = useDispatch();
+
+  const {token} = useSelector((state : any)=>state.auth)
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getAllShips({ url: "ship" , token }));
+  }, [isShipsRequireRender, dispatch]);
+
+  const columns: any = [
     {
       title: "اسم المسئول",
       dataIndex: "name",
-      key: "name",      
+      key: "name",
     },
     {
       title: "رقم الهاتف",
       dataIndex: "phone",
-      key: "phone",      
+      key: "phone",
     },
-   
+    isHaveAuthToView ?
     {
-      title: 'الاجرائات',
-      dataIndex: '',
-      key: 'x',
-      render: (e) => <div style={{display : 'flex' , alignItems : 'center' , gap : '10px'}}>
-       <a><DeleteOutlined onClick={()=> DeleteModal(e.name, isWaitingForDeleteShip ,()=>confirmDelete(e.key))}/></a> 
-       <a><EyeOutlined onClick={()=> navigate(`/ship/${e.key}`) }/></a> 
-      </div>
-    },
+      title: "الاجرائات",
+      dataIndex: "",
+      key: "x",
+      render: (e : any) => (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* <a>
+            <DeleteOutlined
+              onClick={(event) => {
+                event.stopPropagation();
+                DeleteModal(e.name, isWaitingForDeleteShip, () =>
+                  confirmDelete(e._id)
+                );
+              }}
+            />
+          </a> */}
+          <a>
+            <EyeOutlined onClick={() => navigate(`/ship/${e._id}`)} />
+          </a>
+        </div>
+      ),
+    } 
+    : null ,
   ];
-  const confirmDelete = (id : any)=>{
-    
-    // delete function
-    dispatch(deleteShip({url : 'ship'  , id : id , toastMessage : 'تم حذف  مسئول الشحن بنجاح'}))
- }  
+  // const confirmDelete = (id: any) => {
+  //   // delete function
+  //   dispatch(
+  //     deleteShip({
+  //       url: "ship",
+  //       id: id,
+  //       toastMessage: "تم حذف  مسئول الشحن بنجاح",
+  //     })
+  //   );
+  // };
   return (
     <>
-      <MainContainer title="اضافة مسئول شحن" isCollapse={true}>
-        <AddNewShip />
-      </MainContainer>
-       <TableWrapper keyTerm="ship" key={'ships'} loading={isWaitingForShips} title='جميع مسئولي الشحن' columns={columns} data={formattedShips}/>
+    {isHaveAuthToCreate
+    ?
+    <MainContainer title="اضافة مسئول شحن" isCollapse={true}>
+    <AddNewShip />
+  </MainContainer>
+: null
+    }
+      <TableWrapper
+        isExpand={isHaveAuthToUpdate}
+        keyTerm="ship"
+        key={"ships"}
+        loading={isWaitingForShips}
+        title="جميع مسئولي الشحن"
+        columns={columns}
+        data={ships}
+      />
     </>
-  )
-}
-
-export default Ship
+  );
+};
+export default Ship;

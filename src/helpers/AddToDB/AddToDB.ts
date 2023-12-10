@@ -7,20 +7,21 @@ import DisplayToast from "../DisplayToast/DisplayToast";
 const AddToDB = async (information : any , thunkAPI : GetThunkAPI<any>) => {
     const {   url  , data , token , toastMessage , clearForm } = information;
     const {  rejectWithValue } = thunkAPI;
-    console.log(token)
+    
     try {
       const response = await AxiosInstance.post(url , {...data} , {
-        //   headers: {
-        //      Authorization:
-        //      "Bearer " + token
-        //   }
+          headers: {
+             Authorization:
+             "Bearer " + token
+          }
       })
       if (response.status === 200 || response.status === 201) {  
         DisplayToast(toastMessage, true)
         if(clearForm) {
           clearForm()
         }
-        return response;
+        console.log(response.data)
+        return response.data.data;
       }
     } catch (err : any) {
       

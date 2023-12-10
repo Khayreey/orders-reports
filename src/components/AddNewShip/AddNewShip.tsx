@@ -18,6 +18,8 @@ const AddNewShip = () => {
   const [shipName , setShipName]  = useState('')
   const [shipPhone , setShipPhone] = useState('')
   const [isFormError, setIsFormError] = useState(false);
+
+  const {token} = useSelector((state : any)=>state.auth)
   useEffect(() => {
     if (
     shipName === "" 
@@ -42,7 +44,8 @@ const AddNewShip = () => {
       {data : {name : shipName , phone : shipPhone} , 
       toastMessage : 'تم اضافة مسئول الشحن بنجاح' ,
       url : 'ship' , 
-      clearForm : ()=> ClearForm(formRef)
+      clearForm : ()=> ClearForm(formRef) , 
+      token
     })
     )
 }

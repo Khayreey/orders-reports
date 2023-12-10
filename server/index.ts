@@ -16,6 +16,7 @@ import ProductRoute from './routes/productRoute';
 import ShipRoute from './routes/shipRoute';
 import OrderRoute from './routes/orderRoute';
 import {connectDB} from './config/ConnectDB'
+import authMiddelware from './middleware/authMiddleware'
 
 
 // setUp cors options 
@@ -32,9 +33,9 @@ app.use(cors(corsOptions))
 
 // our routes
 app.use('/api/user' , UserRoute)
-app.use('/api/product'  , ProductRoute)
-app.use('/api/ship'  , ShipRoute)
-app.use('/api/order'  , OrderRoute)
+app.use('/api/product' , authMiddelware  , ProductRoute)
+app.use('/api/ship' , authMiddelware , ShipRoute)
+app.use('/api/order' , authMiddelware , OrderRoute)
 // app.use('/api/contacts' , authMiddelware , ContactsRoute)
 // app.use('/api/chat' , authMiddelware , ChatRoute)
 
@@ -50,7 +51,7 @@ const start = async () => {
       if (!process.env.MONGO_URL) throw new Error('Key to Connect Is Missed');
   
        await connectDB(process.env.MONGO_URL);
-       await connectDB('127.0.0.1:27017')
+       //await connectDB('127.0.0.1:27017')
       
 
       // Use OrderModel here or in other parts of your application

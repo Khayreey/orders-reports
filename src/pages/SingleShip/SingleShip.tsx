@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import DispatchInterface from "../../types/DispatchInterface";
 import { getSingleShip } from "../../store/shipSlice/shipSlice";
@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import LoadingPage from "../LoadingPage/LoadingPage";
 import TableWrapper from "../../components/TableWrapper/TableWrapper";
 import { Select, Typography } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 
 const statusOptions = [
   { value: "الكل", label: "الكل" },
@@ -17,6 +18,11 @@ const SingleShip = () => {
   const { id } = useParams();
   const dispatch: DispatchInterface = useDispatch();
 
+
+  const {permissions} = useSelector((state : any)=> state.auth)
+
+  const {token} = useSelector((state : any)=>state.auth)
+
   const [selectedShipOrders, setSelectedShipOrders] = useState([]);
 
   const { isWaitingForGetShip, ship } = useSelector((state: any) => state.ship);
@@ -26,16 +32,14 @@ const SingleShip = () => {
   const [selectedStatus, setSelectedStatus] = useState("الكل");
 
   useEffect(() => {
-    dispatch(getSingleShip({ url: `ship/`, id: id }));
-  }, [isPendingOrdersRequireRender, dispatch]);
+    dispatch(getSingleShip({ url: `ship/`, id: id , token}));
+  }, [isPendingOrdersRequireRender, dispatch ,id]);
 
   useEffect(() => {
     if (!ship || !ship.orders || ship.orders.length === 0) return;
     setSelectedStatus("الكل");
-    const formateOrders = ship.orders.map(({ _id, ...state }: any) => {
-      return { ...state, key: _id };
-    });
-    setSelectedShipOrders(formateOrders);
+   
+    setSelectedShipOrders(ship.orders);
   }, [ship]);
 
   const columns: any = [
@@ -54,7 +58,7 @@ const SingleShip = () => {
       title: "رقم الهاتف",
       dataIndex: "",
       key: "",
-      render: (e: any) => (
+      render: (e: any ) => (
         <Typography>
           {e.anotherPhone ? `${e.phone} / ${e.anotherPhone} ` : `${e.phone} `}
         </Typography>
@@ -82,30 +86,42 @@ const SingleShip = () => {
       key: "address",
       search: true,
     },
+    {
+      title: "الاجرائات",
+      dataIndex: "",
+      key: "",
+      render: (e: any) => (
+        <>
+        {permissions &&  permissions.view &&
+        permissions.view.includes("order") ? 
+        <Link to={`/orders/${e.id}`}>
+        <EyeOutlined />
+       </Link>
+       
+      : null
+       }
+      </>  
+      )  
+    }
   ];
   // when change state to display pending or running
   const changeShipHandler = (e: any) => {
     setSelectedStatus(e);
     if (e === "الكل") {
-      const formateOrders = ship.orders.map(({ _id, ...state }: any) => {
-        return { ...state, key: _id };
-      });
-      setSelectedShipOrders(formateOrders);
+     
+      setSelectedShipOrders(ship.orders);
     } else {
       const shipOrdersFromPending = ship.orders.filter(
         (order: any) => order.status == e
       );
 
-      const formateOrders = shipOrdersFromPending.map(
-        ({ _id, ...state }: any) => {
-          return { ...state, key: _id };
-        }
-      );
-      setSelectedShipOrders(formateOrders);
+      
+      setSelectedShipOrders(shipOrdersFromPending);
     }
   };
   return (
     <>
+     
       {isWaitingForGetShip ? <LoadingPage /> : null}
       <>
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
@@ -134,6 +150,7 @@ const SingleShip = () => {
               title={`جميع طلبات ${ship.ship.name}`}
               columns={columns}
               data={selectedShipOrders}
+             
             />
           </>
         ) : null}

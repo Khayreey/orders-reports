@@ -7,7 +7,7 @@ dotenv.config()
 interface UserInterface {
     email : string ,
     password : string , 
-    permissions : {
+    permission : {
         view : string [] , 
         create : string [] , 
         update : string [] ,
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema<UserInterface>({
     email : {
         type : String , 
         required : [true , "لا بد من توافر بريد الكتروني للمستخدم"] , 
-        unique : true ,
+        unique : true  ,
        
     } , 
     password : {
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema<UserInterface>({
         type : String , 
         required : [true , "لابد من اضافة اسم الدور "]
     } , 
-    permissions : {
+    permission : {
         type : {
             create : Array<string> , 
             update : Array<string> , 
@@ -59,7 +59,7 @@ userSchema.methods.isPasswordMatch = async function(password : string) {
 }
 
 userSchema.methods.createJWT = function(){
-    return jwt.sign({userId : this._id , roleName : this.roleName , permissions : this.permissions} , process.env.JWT_SECRET , {expiresIn : process.env.JWT_LIFETIME})
+    return jwt.sign({userId : this._id , roleName : this.roleName , permissions : this.permission} , process.env.JWT_SECRET , {expiresIn : process.env.JWT_LIFETIME})
 }
 
 

@@ -2,8 +2,6 @@
 import { FloatButton, Form, FormInstance, Input, InputNumber, List } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineCheck } from "react-icons/ai";
-import {MdDeleteOutline} from 'react-icons/md'
-import DeleteModal from "../../modals/DeleteModal/DeleteModal";
 import { useDispatch, useSelector } from "react-redux";
 import ClearForm from "../../helpers/ClearForm/ClearForm";
 import DispatchInterface from "../../types/DispatchInterface";
@@ -11,19 +9,22 @@ import { updateProductType } from "../../store/productSlice/productSlice";
 
 interface ExpandProps {
   type : any ,
-  confirmDelete : any , 
+  confirmDelete? : any , 
   productId : any
 }
-const ExpandProductItem = ({type , confirmDelete , productId} : ExpandProps) => {
+const ExpandProductItem = ({type  , productId} : ExpandProps) => {
   
   const  formRef = useRef<FormInstance<any>>(null);
-  const {isWaitingForDeleteProduct} = useSelector((state : any)=>state.product)
   const [typeName , setTypeName] = useState(type.name)
   const [addedQuantity , setAddedQuantity] = useState('')
   const [isUpdateOpen , setIsUpdateOpen] = useState(false)
 
  
   const dispatch: DispatchInterface = useDispatch();
+  
+  
+  const {token} = useSelector((state: any)=> state.auth)
+
   useEffect(()=>{
        if(typeName !== type.name || addedQuantity !=='' || Number(addedQuantity) !==0) {
         setIsUpdateOpen(true)
@@ -46,6 +47,7 @@ const ExpandProductItem = ({type , confirmDelete , productId} : ExpandProps) => 
     if(typeName !== type.name) {
       dispatch(
         updateProductType({
+          token , 
           data: { name: typeName, quantity: addedQuantity , typeId : type._id },
           url: `product/add/${productId}`,
           toastMessage: "تم تعديل النوع بنجاح",
@@ -55,6 +57,7 @@ const ExpandProductItem = ({type , confirmDelete , productId} : ExpandProps) => 
     else {
       dispatch(
         updateProductType({
+          token , 
           data: {  quantity: addedQuantity , typeId : type._id },
           url: `product/add/${productId}`,
           toastMessage: "تم تعديل النوع بنجاح",
@@ -117,10 +120,10 @@ const ExpandProductItem = ({type , confirmDelete , productId} : ExpandProps) => 
       : null
       }
       </Form>
-      <div style={{cursor : 'pointer'}}>
+      {/* <div style={{cursor : 'pointer'}}>
          <MdDeleteOutline style={{ fontSize : '20px' }} 
          onClick={()=> DeleteModal(type.name, isWaitingForDeleteProduct ,()=>confirmDelete(type._id))}/>
-      </div>
+      </div> */}
     </List.Item>
   );
 };

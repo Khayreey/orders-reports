@@ -1,61 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import DispatchInterface from "../../types/DispatchInterface";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllPendingOrders } from "../../store/orderSlice/orderSlice";
+import { getAllRunningOrders } from "../../store/orderSlice/orderSlice";
 import TableWrapper from "../../components/TableWrapper/TableWrapper";
-import {  Typography } from "antd";
+import { Typography } from "antd";
 import LoadingPage from "../LoadingPage/LoadingPage";
-
+import FormatDate from "../../helpers/FormatDate/FormatDate";
+import { Link } from "react-router-dom";
+import { EyeOutlined } from "@ant-design/icons";
 
 const RunningOrders = () => {
   const {
-    isWaitingForRunOrders , 
+    isWaitingForRunOrders,
     isPendingOrdersRequireRender,
-    pendingOrders,
+    runningOrders,
     isWaitingForGetPendingOrders,
   } = useSelector((state: any) => state.order);
   const dispatch: DispatchInterface = useDispatch();
-  // state for mange all ships and filter them 
- 
-  const [selectedShipOrders , setSelectedShipOrders] = useState([])
-  // set ships when orders come to display list for each ship responsible 
-  //useEffect to rest select ship when ever ships change 
-  
- 
+
+  const {token} = useSelector((state : any)=>state.auth)
+
   useEffect(() => {
-    dispatch(getAllPendingOrders({ url: "order/running" }));
-    
+    dispatch(getAllRunningOrders({ url: "order/running" , token }));
   }, [isPendingOrdersRequireRender, dispatch]);
-  
-  useEffect(()=>{
-    if(!pendingOrders) return 
-    const formateOrders = pendingOrders.map(({_id  , ...state} : any)=>{
-      return {...state , key : _id}
-    }) 
-    
-    setSelectedShipOrders(formateOrders)
-  } , [pendingOrders ])
-  
-  
+
   const columns: any = [
     {
-        title: "رقم الطلب",
-        dataIndex: "id",
-        key: "id",
-        search : true
-      },
+      title: "رقم الطلب",
+      dataIndex: "id",
+      key: "id",
+      search: true,
+    },
     {
       title: "اسم العميل",
       dataIndex: "name",
       key: "name",
-      search : true , 
+      search: true,
     },
     {
       title: "رقم الهاتف",
       dataIndex: "",
       key: "",
-      render: (e : any) => (
+      render: (e: any) => (
         <Typography>
           {e.anotherPhone ? `${e.phone} / ${e.anotherPhone} ` : `${e.phone} `}
         </Typography>
@@ -67,35 +54,60 @@ const RunningOrders = () => {
       key: "price",
     },
     {
+      title: "وقت الكتابة",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (e: any) => FormatDate(e),
+    },
+    {
+      title: "وقت التشغيل",
+      dataIndex: "updates",
+      key: "updates",
+      render: (e: any) => {
+        const time = e && e.filter((e: any) => e.info === "تم التشغيل");
+        console.log(time);
+        if (time) {
+          const lastUpdate = time.pop();
+
+          if (lastUpdate) {
+            return FormatDate(lastUpdate.timestamp);
+          } else return "---";
+        }
+      },
+    },
+    {
       title: "المحافظة",
       dataIndex: "country",
       key: "country",
-      search : true , 
+      search: true,
     },
     {
       title: "العنوان",
       dataIndex: "address",
       key: "address",
-      search : true
     },
-   
+    {
+      title: "الاجرائات",
+      dataIndex: "",
+      key: "",
+      render: (e: any) => (
+        <Link to={`/orders/${e.id}`}>
+          <EyeOutlined />
+        </Link>
+      ),
+    },
   ];
- 
+
   return (
     <>
-    {isWaitingForRunOrders ? 
-     <LoadingPage />
-    : null
-    }
-    
-    
+      {isWaitingForRunOrders ? <LoadingPage /> : null}
       <TableWrapper
         keyTerm="shipOrders"
         key={"shipOrders"}
         loading={isWaitingForGetPendingOrders}
         title="جميع الطلبات قيد التشغيل"
         columns={columns}
-        data={selectedShipOrders}
+        data={runningOrders}
       />
     </>
   );
