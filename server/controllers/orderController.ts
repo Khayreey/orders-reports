@@ -480,11 +480,25 @@ export const updateOrder = async (req: Request, res: Response) => {
   );
 
   if (updatedOrder) {
-    if (req.body.status === "قيد التشغيل") {
+    if(req.body.status) {
+      if (req.body.status === "قيد التشغيل") {
+        updatedOrder.updates.push({
+          info: "تم التشغيل",
+          timestamp: new Date(),
+        });
+        if (req.body.status === "معلق") {
+          updatedOrder.updates.push({
+            info: "تم التعليق",
+            timestamp: new Date(),
+          });
+    }
+    else {
       updatedOrder.updates.push({
-        info: "تم التشغيل",
+        info: "تم تعديل معلومات الطلب",
         timestamp: new Date(),
       });
+    }
+    
       await updatedOrder.save();
     }
 
@@ -492,6 +506,7 @@ export const updateOrder = async (req: Request, res: Response) => {
   } else {
     throwBadRequestError("خطأ في تعديل المنتجات في الاوردر");
   }
+}
 };
 async function handleRemovedProduct(existingProduct: any) {
   const removedProduct: any = await ProductModel.findById(

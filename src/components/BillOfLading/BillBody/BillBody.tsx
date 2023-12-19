@@ -16,18 +16,18 @@ const BillBody = ({ order, isSheet }: any) => {
       : [];
 
   return (
-    <div className={styles.main}>
+    <div
+      className={styles.main}
+      style={{ fontSize: isSheet ? "12px" : "13.5px" }}
+    >
       <article className={styles.article}>
-        <address
-          className={styles.address}
-          style={{ display: "flex", flexDirection: "column" }}
-        >
+        <address className={styles.address} style={{ display: "flex" }}>
           <BarCodeView value={order.id} />
           {isSheet ? (
             <div
               style={{
-                width: "5cm",
-                height: ".87cm",
+                width: "2.8cm",
+                height: "1cm",
                 border: "1px solid black",
               }}
             ></div>
@@ -67,7 +67,7 @@ const BillBody = ({ order, isSheet }: any) => {
 
             <tr>
               <th className={styles.th}>
-                <span>رقم هاتف العميل</span>
+                <span>رقم هاتف</span>
               </th>
               <td className={styles.td}>
                 <span>
@@ -112,7 +112,7 @@ const BillBody = ({ order, isSheet }: any) => {
               </th>
               <td className={styles.td}>
                 <span data-prefix>LE </span>
-                <span style={{ fontWeight: "800" }}>
+                <span style={{ fontWeight: "900" }}>
                   {order && order.price ? order.price : ""}
                 </span>
               </td>

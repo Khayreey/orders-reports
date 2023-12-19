@@ -6,7 +6,7 @@ interface EndorsementInterface {
 }
 const Endorsement = ({ name, phone, num, price }: EndorsementInterface) => {
   return (
-    <div style={{pageBreakInside: 'avoid' }}>
+    <div style={{pageBreakInside: 'avoid' , border : '1.5px solid black' , fontWeight : '800' , padding : '2px'}}>
       <h3 style={{ borderBottom: "1px solid black", textAlign: "center" }}>
         اقرار استلام
       </h3>

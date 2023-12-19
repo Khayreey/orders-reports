@@ -5,6 +5,9 @@
     .billContainer{
       display: block !important;
     }
+    .billContainer {
+      page-break-inside: avoid !important; /* Ensure that page breaks don't occur inside .billContainer */
+    }
   }
   .billContainer {
     display: none;

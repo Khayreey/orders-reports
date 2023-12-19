@@ -6,6 +6,9 @@ const OrderRoute = express.Router()
 
 OrderRoute.route('/').post(createNewOrder)
 OrderRoute.route('/order/:id').patch(updateOrder).delete(deleteOrder).get(getOrderById)
+
+
+
 OrderRoute.route('/order/phone/:phone').get(getOrderByPhone)
 OrderRoute.route('/order/name/:name').get(getOrderByName)
 

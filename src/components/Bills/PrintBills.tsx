@@ -30,7 +30,7 @@ export default function PrintBills({ data, ship }: PrintBillsInterface) {
       {data && data.length > 0 ? (
         <>
           <SheetBills ref={sheetRef} data={data} ship={ship} />
-          <Bills ref={componentRef} data={data} ship={ship} />
+          <Bills ref={componentRef} data={data}  />
           <Button onClick={handlePrint} icon={<PrinterOutlined />}>
             طباعة البوالص
           </Button>

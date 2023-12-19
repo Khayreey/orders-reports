@@ -38,7 +38,6 @@ export const updateUser = createAsyncThunk(
     return UpdateDB(information, thunkAPI);
   }
 );
-
 const storedPermissionsString = sessionStorage.getItem("senoritaPermissions");
 let parsedPermissions;
 
@@ -58,12 +57,55 @@ const initialState = {
   users: [],
   isWaitingForAddNewUser: false,
   isUsersRequireRender: false,
+  isWaitingForGetUsers : false , 
+  isWaitingForDeletUser : false , 
+  isWaitingForUpdateUser : false
 };
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    
+    // get All
+    builder.addCase(getAllUsers.pending, (state) => {
+      state.isWaitingForGetUsers = true;
+    });
+    builder.addCase(getAllUsers.fulfilled, (state , action) => {
+      state.users = action.payload
+      state.isWaitingForGetUsers = false;
+    });
+    builder.addCase(getAllUsers.rejected, (state) => {
+      state.isWaitingForGetUsers = false;
+    });
+    //get all !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    // delete one
+    builder.addCase(deleteUser.pending, (state) => {
+      state.isWaitingForDeletUser = true;
+    });
+    builder.addCase(deleteUser.fulfilled, (state) => {
+      state.isUsersRequireRender = !state.isUsersRequireRender
+      state.isWaitingForDeletUser = false;
+    });
+    builder.addCase(deleteUser.rejected, (state) => {
+      state.isWaitingForDeletUser = false;
+    });
+    //delete One !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+     //update one
+     builder.addCase(updateUser.pending, (state) => {
+      state.isWaitingForUpdateUser = true;
+    });
+    builder.addCase(updateUser.fulfilled, (state) => {
+      state.isUsersRequireRender = !state.isUsersRequireRender
+      state.isWaitingForUpdateUser = false;
+    });
+    builder.addCase(updateUser.rejected, (state) => {
+      state.isWaitingForUpdateUser = false;
+    });
+    //update One !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
     // login start
     builder.addCase(login.pending, (state) => {
       state.isWaitingForLogin = true;

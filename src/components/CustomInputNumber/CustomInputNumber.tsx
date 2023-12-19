@@ -46,7 +46,6 @@ const CustomInputNumber = ({
       }
     }
   };
-  console.log(product.quantity);
 
   return (
     <>

@@ -27,10 +27,8 @@ interface DataType {
   address: any;
 }
 const BillsPage = () => {
-  
-  
-  const {token} = useSelector((state : any)=>state.auth)
-  
+  const { token } = useSelector((state: any) => state.auth);
+
   const {
     isWaitingForRunOrders,
     isPendingOrdersRequireRender,
@@ -50,7 +48,7 @@ const BillsPage = () => {
     if (!pendingOrders || pendingOrders.length === 0) return;
     {
       const format = pendingOrders.map(({ ship }: any) => {
-        return { label: ship.name, value: ship._id , phone : ship.phone };
+        return { label: ship.name, value: ship._id, phone: ship.phone };
       });
       const uniqueSet = new Set(format.map(JSON.stringify));
 
@@ -66,7 +64,7 @@ const BillsPage = () => {
   }, [pendingOrders]);
 
   useEffect(() => {
-    dispatch(getAllPendingOrders({ url: "order/pending"  , token}));
+    dispatch(getAllPendingOrders({ url: "order/pending", token }));
   }, [isPendingOrdersRequireRender, dispatch]);
 
   useEffect(() => {
@@ -78,10 +76,10 @@ const BillsPage = () => {
   const confirmDelete = (id: string) => {
     dispatch(
       deletePendingOrder({
-        url: "order",
-        id: id,
+        url: `order/order/${id}`,
+
         toastMessage: "تم جذف الطلب بنجاح",
-        token
+        token,
       })
     );
   };
@@ -130,7 +128,7 @@ const BillsPage = () => {
       dataIndex: "",
       key: "x",
       render: (e: any) => (
-        <div style={{display : 'flex' , alignItems : 'center' , gap : '20px'}}>
+        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <a>
             <DeleteOutlined
               onClick={() =>
@@ -177,11 +175,11 @@ const BillsPage = () => {
         data: { orders: ids },
 
         url: "/order/run",
-        token
+        token,
       })
     );
   };
-  
+
   return (
     <>
       {isWaitingForRunOrders ? <LoadingPage /> : null}
@@ -202,12 +200,16 @@ const BillsPage = () => {
             value={selectedShip}
             onChange={(e) => changeShipHandler(e)}
           />
-          {selectedShip === 'الكل'
-           ? null 
-           : 
-           <PrintBills data={selectedShipOrders} ship={ships.length >  0 ? ships.find((e : any)=>e.value == selectedShip) : ""}/>
-          }
-          
+          {selectedShip === "الكل" ? null : (
+            <PrintBills
+              data={selectedShipOrders}
+              ship={
+                ships.length > 0
+                  ? ships.find((e: any) => e.value == selectedShip)
+                  : ""
+              }
+            />
+          )}
 
           <Button
             onClick={runOrdersHandler}

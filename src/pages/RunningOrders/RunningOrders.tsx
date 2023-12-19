@@ -65,7 +65,6 @@ const RunningOrders = () => {
       key: "updates",
       render: (e: any) => {
         const time = e && e.filter((e: any) => e.info === "تم التشغيل");
-        console.log(time);
         if (time) {
           const lastUpdate = time.pop();
 
